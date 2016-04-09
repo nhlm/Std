@@ -13,4 +13,21 @@ interface ipConfigurable
      * @return $this
      */
     function with(array $options, $throwException = false);
+
+    /**
+     * Load Build Options From Given Resource
+     *
+     * - usually it used in cases that we have to support
+     *   more than once configure situation
+     *   [code:]
+     *     Configurable->with(Configurable::withOf(path\to\file.conf))
+     *   [code]
+     *
+     *
+     * @param array|mixed $resource
+     *
+     * @throws \InvalidArgumentException if resource not supported
+     * @return array
+     */
+    static function withOf($resource);
 }
