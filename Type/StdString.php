@@ -2,7 +2,7 @@
 namespace Poirot\Std\Type;
 
 if (!class_exists('\SplString')) {
-    require __DIR__.'/fixes/NSplString.php';
+    require_once __DIR__.'/fixes/NSplString.php';
     class_alias('\Poirot\Std\Type\NSplString', '\SplString');
 }
 
