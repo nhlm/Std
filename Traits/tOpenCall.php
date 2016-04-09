@@ -17,7 +17,7 @@ namespace Poirot\Std\Traits;
  *
  */
 
-trait OpenCallTrait
+trait tOpenCall
 {
     private $_t__methods = [];
     private $_t__bindTo;

@@ -1,7 +1,7 @@
 <?php
 namespace Poirot\Std;
 
-use Poirot\Std\Traits\OpenCallTrait;
+use Poirot\Std\Traits\tOpenCall;
 
 /**
  * TODO Call by reference not working as expected
@@ -21,7 +21,7 @@ use Poirot\Std\Traits\OpenCallTrait;
 
 class OpenCall
 {
-    use OpenCallTrait;
+    use tOpenCall;
 
     /**
      * Construct

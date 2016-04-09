@@ -1,11 +1,11 @@
 <?php
 namespace Poirot\Std;
 
-use Poirot\Std\Traits\ConfigurableSetterTrait;
+use Poirot\Std\Traits\tConfigurableSetter;
 
 class ConfigurableSetter
 {
-    use ConfigurableSetterTrait;
+    use tConfigurableSetter;
 
     /**
      * Construct

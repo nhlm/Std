@@ -1,7 +1,7 @@
 <?php
 namespace Poirot\Std\Traits;
 
-trait CloneTrait
+trait tClone
 {
     function __clone()
     {

@@ -1,7 +1,7 @@
 <?php
 namespace Poirot\Std\Traits;
 
-trait ConfigurableSetterTrait
+trait tConfigurableSetter
 {
     /**
      * [
