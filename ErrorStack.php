@@ -48,7 +48,7 @@ ErrorStack::handleException(function ($e) {
 throw new \Exception;
 
 */
-
+// TODO review error/exception handling for php5/7
 class ErrorStack
 {
     const ERR_DEF_SEVERITY = E_ALL;
