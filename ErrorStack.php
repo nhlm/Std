@@ -115,7 +115,7 @@ class ErrorStack
      * - handleError(callable)
      * - handleError(E_ALL, callable)
      *   callable:
-     *   func($errno, $errstr = '', $errfile = '', $errline = 0)
+     *   func(\ErrorException $errorExc)
      *
      * @param int $errorLevel
      * @param callable|null $callable
@@ -201,7 +201,10 @@ class ErrorStack
 
         if (! $errno instanceof \Exception)
             ## handle errors
-            $errno = new ErrorException($errstr, 0, $errno, $errfile, $errline);
+            $errno = new ErrorException(
+                $errno->getMessage(), $errno->getCode(), 1, $errno->getFile(), $errno->getLine()
+                , $errno
+            );
 
         $stack['has_error'] = $errno;
 
