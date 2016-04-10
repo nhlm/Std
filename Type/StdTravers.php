@@ -50,7 +50,7 @@ final class StdTravers extends \SplType
      * @param \Closure|null $filter
      * @param bool          $recursive     Recursively convert values that can be iterated
      *
-     * @return StdArray
+     * @return array
      */
     function toArray(\Closure $filter = null, $recursive = true)
     {
@@ -73,7 +73,7 @@ final class StdTravers extends \SplType
             $arr[(string) $key] = $val;
         }
 
-        return new StdArray($arr);
+        return $arr;
     }
 
 
