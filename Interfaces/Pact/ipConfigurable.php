@@ -24,10 +24,10 @@ interface ipConfigurable
      *   [code]
      *
      *
-     * @param array|mixed $resource
+     * @param array|mixed $optionsResource
      *
      * @throws \InvalidArgumentException if resource not supported
      * @return array
      */
-    static function withOf($resource);
+    static function withOf($optionsResource);
 }
