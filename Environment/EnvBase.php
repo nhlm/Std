@@ -31,17 +31,18 @@ abstract class EnvBase extends aDataOptions
         if ($settings !== null)
             $this->from($settings);
 
-        // do apply by current options value
+        # initialize specific environment
+        $this->init();
+
+        # do apply by current options value
         foreach($this as $prop => $value) {
             $method = 'do'.(new StdString($prop))->camelCase();
             if (method_exists($this, $method))
                 $this->{$method}($value);
         }
-
-        $this->doInitialize();
     }
 
-    protected function doInitialize()
+    protected function init()
     {
         // specific system wide setting initialize for extended classes ...
     }
