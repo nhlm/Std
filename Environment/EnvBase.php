@@ -2,16 +2,17 @@
 namespace Poirot\Std\Environment;
 
 use Poirot\Std\Struct\aDataOptions;
+use Poirot\Std\Type\StdString;
 
 /*
 
-ESProduction::setupSystemWide();
+(new EnvProduction)->apply();
 # warning error not displayed
 echo $not_defined_variable;
 
 */
 
-class EnvBase extends aDataOptions
+abstract class EnvBase extends aDataOptions
 {
     protected $displayErrors;
     protected $errorReporting;
@@ -25,35 +26,34 @@ class EnvBase extends aDataOptions
      *
      * @param EnvBase|array|\Traversable $settings
      */
-    static function setupSystemWide($settings = null)
+    final function apply($settings = null)
     {
-        $self = new static;
-
         if ($settings !== null)
-            $self->from($settings);
+            $this->from($settings);
 
-        // use properties
-
-        foreach($self as $prop => $value) {
-            switch ($prop) {
-                case 'display_errors':
-                    ini_set('display_errors', $value);
-                    break;
-                case 'error_reporting':
-                    error_reporting($value);
-                    break;
-            }
+        // do apply by current options value
+        foreach($this as $prop => $value) {
+            $method = 'do'.(new StdString($prop))->camelCase();
+            if (method_exists($this, $method))
+                $this->{$method}($value);
         }
 
-        $self->doInitSystem();
+        $this->doInitialize();
     }
 
-    protected function doInitSystem()
+    protected function doInitialize()
     {
-        // specific system wide setting initialize ...
+        // specific system wide setting initialize for extended classes ...
     }
 
     // ...
+
+
+    function doDisplayErrors($value)
+    {
+        ini_set('display_errors', $value);
+        return $this;
+    }
 
     /**
      * @param mixed $displayErrors
@@ -71,6 +71,14 @@ class EnvBase extends aDataOptions
     function getDisplayErrors()
     {
         return $this->displayErrors;
+    }
+
+    // ..
+
+    function doErrorReporting($value)
+    {
+        error_reporting($value);
+        return $this;
     }
 
     /**
@@ -91,6 +99,14 @@ class EnvBase extends aDataOptions
         return $this->errorReporting;
     }
 
+    // ..
+
+    function doDisplayStartupErrors($value)
+    {
+        ini_set('display_startup_errors', $value);
+        return $this;
+    }
+
     /**
      * @param mixed $displayStartupErrors
      * @return $this
@@ -107,6 +123,14 @@ class EnvBase extends aDataOptions
     function getDisplayStartupErrors()
     {
         return $this->displayStartupErrors;
+    }
+
+    // ..
+
+    function doHtmlErrors($value)
+    {
+        ini_set('html_errors', $value);
+        return $this;
     }
 
     /**
