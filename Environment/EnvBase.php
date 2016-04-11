@@ -32,7 +32,7 @@ abstract class EnvBase extends aDataOptions
             $this->from($settings);
 
         # initialize specific environment
-        $this->init();
+        $this->initApply();
 
         # do apply by current options value
         foreach($this as $prop => $value) {
@@ -42,7 +42,7 @@ abstract class EnvBase extends aDataOptions
         }
     }
 
-    protected function init()
+    protected function initApply()
     {
         // specific system wide setting initialize for extended classes ...
     }
