@@ -13,7 +13,8 @@ $EnvSettings->apply();
 
 */
 
-class FactoryEnvironment implements ipFactory
+class FactoryEnvironment
+    implements ipFactory
 {
     protected static $_aliases = [
         'development'     => \Poirot\Std\Environment\EnvDevelopment::class,
@@ -27,6 +28,47 @@ class FactoryEnvironment implements ipFactory
         'php'             => 'php-environment',
         'default'         => 'php',
     ];
+
+    /**
+     * Build Object With Provided Options
+     * Options: [
+     *   'register'   => ['name' => EnvBase|'To\ClassName', 'name' => [EnvBase|'To\ClassName', 'alias', $alias2, ..] ]
+     *   'alias_name' => ['nameOrAlias', 'alias', 'alias2', ..]
+     *
+     * @param array $options        Associated Array
+     * @param bool  $throwException Throw Exception On Wrong Option
+     *
+     * @throws \Exception
+     * @return $this
+     */
+    static function with(array $options, $throwException = false)
+    {
+        if ($throwException && !(isset($options['register']) || isset($options['alias_name'])))
+            throw new \InvalidArgumentException('Invalid Option Provided.');
+
+        if (isset($options['register']) && $register = $options['register']) {
+            foreach ($register as $name => $instanceAliases) {
+                if (!is_array($instanceAliases))
+                    ## ['name' => EnvBase|'To\ClassName'
+                    $instanceAliases = [$instanceAliases];
+
+                $envInstance = array_shift($instanceAliases);
+                // remaining items is aliases
+                // 'name' => [EnvBase|'To\ClassName', 'alias', $alias2, ..
+                self::register($envInstance, $name, $instanceAliases);
+            }
+        }
+
+        if (isset($options['alias_name']) && $aliases = $options['alias_name']) {
+            foreach ($aliases as $nameOrAlias => $alias) {
+                if (!is_array($alias))
+                    ## ['name' => EnvBase|'To\ClassName'
+                    $alias = [$alias];
+
+                self::setAlias($nameOrAlias, $alias);
+            }
+        }
+    }
 
     /**
      * Factory To Settings Environment
@@ -110,5 +152,31 @@ class FactoryEnvironment implements ipFactory
 
         foreach($alias as $a)
             self::$_aliases[(string) $a] = (string) $name;
+    }
+
+    /**
+     * Load Build Options From Given Resource
+     *
+     * - usually it used in cases that we have to support
+     *   more than once configure situation
+     *   [code:]
+     *     Configurable->with(Configurable::withOf(path\to\file.conf))
+     *   [code]
+     *
+     *
+     * @param array|mixed $optionsResource
+     *
+     * @throws \InvalidArgumentException if resource not supported
+     * @return array
+     */
+    static function withOf($optionsResource)
+    {
+        if (!is_array($optionsResource))
+            throw new \InvalidArgumentException(sprintf(
+                'Options as Resource Just Support Array, given: (%s).'
+                , \Poirot\Std\flatten($optionsResource)
+            ));
+
+        return $optionsResource;
     }
 }
