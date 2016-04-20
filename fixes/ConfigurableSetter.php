@@ -1,8 +1,35 @@
 <?php
-namespace Poirot\Std\Traits;
+## ===================================================
+## | This fix is Code Clone of ../ConfigurableSetter
+## | it will resolve when php not support Traits
+## | @see ../ConfigurableSetter
 
-trait tConfigurableSetter
+namespace Poirot\Std;
+
+use Poirot\Std\Interfaces\Pact\ipConfigurable;
+
+class ConfigurableSetter
+    extends    aConfigurable
+    implements ipConfigurable
 {
+    // use tConfigurableSetter;
+
+    ## just determine that fixed class loaded in debugs
+    protected $IS_FIX;
+
+    /**
+     * Construct
+     *
+     * @param array $setter
+     */
+    function __construct(array $setter = null)
+    {
+        if ($setter !== null)
+            $this->with($setter);
+    }
+
+    ## @see tConfigurableSetter;
+    ## Code Clone <begin> =================================================================
     /**
      * [
      *  'service_config',
@@ -87,4 +114,5 @@ trait tConfigurableSetter
     {
         $this->_t_configurable_setter_Priorities = $propPriorities;
     }
+    ## Code Clone <end> ===================================================================
 }

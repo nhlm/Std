@@ -1,20 +1,23 @@
 {
-    "name": "poirot/std",
-    "description": "Poirot Standard Libraries and Base Functionality.",
-    "type"       : "library",
-    "authors": [
+    "name": "poirot/std"
+    , "description": "Poirot Standard Libraries and Base Functionality."
+    , "type"       : "library"
+    , "authors": [
         {
-            "name": "Payam Naderi",
-            "email": "naderi.payam@gmail.com",
-            "role": "Developer"
+            "name": "Payam Naderi"
+            , "email": "naderi.payam@gmail.com"
+            , "role": "Developer"
         }
-    ],
-    "target-dir": "Poirot/Std",
-    "autoload"  : {
+    ]
+    , "require": {
+        "php": ">=5.3.0"
+    }
+    , "target-dir": "Poirot/Std"
+    , "autoload"  : {
         "psr-0": {
             "Poirot\\Std": "."
-        },
-        "files": [
+        }
+        , "files": [
             "functions.php"
         ]
     }
