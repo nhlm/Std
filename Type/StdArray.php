@@ -371,12 +371,23 @@ final class StdArray extends \SplType
      */
     public function getIterator()
     {
-        // DO_LEAST_PHPVER_SUPPORT
-        if (version_compare(phpversion(), '5.4.0') < 0)
+        // DO_LEAST_PHPVER_SUPPORT v5.5
+        if (version_compare(phpversion(), '5.5.0') < 0)
             ## php version not support yield
-            return new ArrayIterator($this->value);
+            return $this->_fix__getIterator();
         
+        return $this->_getIterator();
+    }
+
+    protected function _getIterator()
+    {
         foreach ($this->value as $k => $v)
             yield $k => $v;
+    }
+
+    // DO_LEAST_PHPVER_SUPPORT v5.5 yield
+    protected function _fix__getIterator()
+    {
+        new ArrayIterator($this->value);
     }
 }

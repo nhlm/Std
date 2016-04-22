@@ -29,8 +29,7 @@ class DataEntity
     protected $_properties = array();
 
     /** @var array Mapped None scalar as keys */
-    protected $__mapedPropObjects = array(
-        # 'hash_string' => $none_scalar_key_self
+    protected $__mapedPropObjects = array(# 'hash_string' => $none_scalar_key_self
     );
 
 
@@ -41,7 +40,7 @@ class DataEntity
      */
     function doSetFrom($data)
     {
-        foreach($data as $k => $v)
+        foreach ($data as $k => $v)
             $this->set($k, $v);
     }
 
@@ -50,7 +49,7 @@ class DataEntity
      *
      * - values that set to null must be unset from entity
      *
-     * @param mixed      $key   Entity Key
+     * @param mixed $key Entity Key
      * @param mixed|null $value Entity Value
      *                          NULL value for a property considered __isset false
      *
@@ -60,7 +59,7 @@ class DataEntity
     {
         if ($key !== $hash = $this->_normalizeKey($key)) {
             $propObj = $key;
-            $key     = $hash;
+            $key = $hash;
             ## store object map
             $this->__mapedPropObjects[$key] = $propObj;
         }
@@ -79,8 +78,8 @@ class DataEntity
     /**
      * Get Entity Value
      *
-     * @param mixed $key     Entity Key
-     * @param null  $default Default If Not Value/Key Exists
+     * @param mixed $key Entity Key
+     * @param null $default Default If Not Value/Key Exists
      *
      * @throws \Exception Value not found
      * @return mixed|null NULL value for a property considered __isset false
@@ -101,7 +100,7 @@ class DataEntity
                 'Property (%s) not found in entity.', $key
             ));
 
-        return ( array_key_exists($key, $properties) )
+        return (array_key_exists($key, $properties))
             ? $properties[$key]
             : $default;
     }
@@ -133,7 +132,7 @@ class DataEntity
 
         $properties = &$this->_referDataArrayReference();
 
-        if ( array_key_exists($key, $properties) ) {
+        if (array_key_exists($key, $properties)) {
             unset($properties[$key]);
             unset($this->__mapedPropObjects[$hash]);
         }
@@ -175,25 +174,40 @@ class DataEntity
      */
     function getIterator()
     {
-        $return = array();
-        
-        $data   = &$this->_referDataArrayReference();
-        foreach($data as $k => $v) {
+        // DO_LEAST_PHPVER_SUPPORT
+        if (version_compare(phpversion(), '5.5.0') < 0)
+            ## php version not support yield
+            return $this->_fix_getIterator();
+
+        return $this->_getIterator();
+    }
+
+    // DO_LEAST_PHPVER_SUPPORT v5.5 yield
+    protected function _getIterator()
+    {
+        $data = &$this->_referDataArrayReference();
+        foreach ($data as $k => $v) {
             (!array_key_exists($k, $this->__mapedPropObjects))
                 ?: $k = $this->__mapedPropObjects[$k];
 
-            // DO_LEAST_PHPVER_SUPPORT
-            if (version_compare(phpversion(), '5.4.0') < 0) {
-                ## php version not support yield
-                $return[] = array($k => $v);
-            } else
-                yield $k => $v;
+            yield $k => $v;
+        }
+    }
+
+    // DO_LEAST_PHPVER_SUPPORT v5.5 yield
+    protected function _fix_getIterator()
+    {
+        $return = array();
+
+        $data = &$this->_referDataArrayReference();
+        foreach ($data as $k => $v) {
+            (!array_key_exists($k, $this->__mapedPropObjects))
+                ?: $k = $this->__mapedPropObjects[$k];
+
+            $return[] = array($k => $v);
         }
 
-        // DO_LEAST_PHPVER_SUPPORT
-        if (version_compare(phpversion(), '5.4.0') < 0)
-            ## php version not support yield
-            return new ArrayIterator($return);
+        return new ArrayIterator($return);
     }
 
     /**

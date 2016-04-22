@@ -164,17 +164,41 @@ class CollectionObject implements iCollectionObject, \Iterator
         if ($data == array_values($data))
             throw new \InvalidArgumentException('Data tags must be associative array.');
 
+        // DO_LEAST_PHPVER_SUPPORT v5.5 yield
+        if (version_compare(phpversion(), '5.5.0') < 0)
+            ## php version not support yield
+            return $this->_fix_find($data);
+
+        return $this->_find($data);
+    }
+
+    // DO_LEAST_PHPVER_SUPPORT v5.5 yield
+    protected function _find($data)
+    {
+        # ETags is unique and if present only search for etag match
+        if (isset($data['etag']) && $hash = $data['etag'])
+            if ($this->has($hash)) {
+                yield array($hash => $this->_objs[$hash]['object']);
+                return;
+            }
+
+
+        # Find data match
+        foreach($this->_objs as $hash => $obAr) {
+            $obData = $obAr['data'];
+            if ($data == array_intersect_assoc($obData, $data))
+                yield array($hash => $this->_objs[$hash]['object']);
+        }
+    }
+
+    // DO_LEAST_PHPVER_SUPPORT v5.5 yield
+    protected function _fix_find($data)
+    {
         # ETags is unique and if present only search for etag match
         if (isset($data['etag']) && $hash = $data['etag'])
             if ($this->has($hash)) {
                 $r = array($hash => $this->_objs[$hash]['object']);
-                // DO_LEAST_PHPVER_SUPPORT
-                if (version_compare(phpversion(), '5.4.0') < 0)
-                    ## php version not support yield
-                    return new \ArrayIterator($r);
-
-                yield $r;
-                return;
+                return new \ArrayIterator($r);
             }
 
 
@@ -184,21 +208,11 @@ class CollectionObject implements iCollectionObject, \Iterator
             $obData = $obAr['data'];
             if ($data == array_intersect_assoc($obData, $data)) {
                 $r = array($hash => $this->_objs[$hash]['object']);
-                // DO_LEAST_PHPVER_SUPPORT
-                if (version_compare(phpversion(), '5.4.0') < 0)
-                    ## php version not support yield
-                    $return[] = $r;
-                else 
-                    yield $r;
+                $return[] = $r;
             }
         }
 
-        // DO_LEAST_PHPVER_SUPPORT
-        if (version_compare(phpversion(), '5.4.0') < 0)
-            ## php version not support yield
-            return $return;
-        
-        return;
+        return $return;
     }
 
     /**

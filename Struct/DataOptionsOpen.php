@@ -142,9 +142,19 @@ class DataOptionsOpen
      * Get Options Properties Information
      *
      */
-    protected function __props()
+    protected function _getProperties()
     {
-        $methodProps  = parent::__props();
+        // DO_LEAST_PHPVER_SUPPORT v5.5
+        if (version_compare(phpversion(), '5.5.0') < 0)
+            ## php version not support yield
+            return $this->_fix_getProperties();
+
+        return $this->_gen_getProperties();
+    }
+
+    protected function _fix_getProperties()
+    {
+        $methodProps  = parent::_getProperties();
 
         $props = array();
 
@@ -171,14 +181,32 @@ class DataOptionsOpen
             }
         }
 
-        ## Yield Combination:
-        
-        // DO_LEAST_PHPVER_SUPPORT
-        if (version_compare(phpversion(), '5.4.0') < 0)
-            ## php version not support yield
-            return new ArrayIterator($props);
-        
-        foreach($props as $p)
-            yield $p;
+        return new ArrayIterator($props);
+    }
+
+    protected function _gen_getProperties()
+    {
+        yield parent::_getProperties();
+
+        // Property Open Options:
+        foreach(array_keys($this->properties) as $propertyName)
+        {
+            foreach(array('set', 'get', 'is') as $prefix) {
+                # check for ignorant
+                $method = $prefix . $this->_normalize($propertyName, 'internal');
+                if (in_array($method, $this->doWhichMethodIgnored()))
+                    ## it will use as internal option method
+                    continue;
+
+                // mark readable/writable for property
+                $property = new PropObject($propertyName);
+                ($prefix == 'set')
+                    ? $property->setWritable()
+                    : $property->setReadable()
+                ;
+
+                yield $property;
+            }
+        }
     }
 }

@@ -6,7 +6,7 @@ use Poirot\Std\Traits\tMixin;
 // DO_LEAST_PHPVER_SUPPORT
 if (version_compare(phpversion(), '5.4.0') < 0) {
     ## php version not support $this(bind, bindTo) on Closures
-    throw new \Exception(sprintf('OpenCall need php >=5.4.0 you have (%s).', phpversion()));
+    throw new \Exception(sprintf('Mixin need php >=5.4.0 you have (%s).', phpversion()));
 }
 
 /**

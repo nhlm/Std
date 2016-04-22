@@ -29,7 +29,7 @@ abstract class aDataOptions
     /**
      * @var PropObject Cached Props Once Call props()
      */
-    protected $_cachedProps = null; // it must be null
+    protected $_c__properties = null; // it must be null
 
     /** @var \Closure Property keys normalizer */
     protected $__normalizer;
@@ -98,28 +98,38 @@ abstract class aDataOptions
     public function getIterator()
     {
         // DO_LEAST_PHPVER_SUPPORT
-        if (version_compare(phpversion(), '5.4.0') < 0) {
+        if (version_compare(phpversion(), '5.5.0') < 0)
             ## php version not support yield
-            $arr = array();
-            foreach($this->__props() as $p) {
-                if (!$p->isReadable()) continue;
+            return $this->_fix__getIterator();
 
-                $val = $this->__get($p->getKey());
-                $arr[(string) $p] = $val;
-            }
-            
-            return new \ArrayIterator($arr);
-        }
-        
         // ...
         
+        return $this->_getIterator();
+    }
+
+    protected function _getIterator()
+    {
         /** @var PropObject $p */
-        foreach($this->__props() as $p) {
+        foreach($this->_getProperties() as $p) {
             if (!$p->isReadable()) continue;
 
             $val = $this->__get($p->getKey());
             yield (string) $p => $val;
         }
+    }
+
+    // DO_LEAST_PHPVER_SUPPORT v5.5 yeild
+    protected function _fix__getIterator()
+    {
+        $arr = array();
+        foreach($this->_getProperties() as $p) {
+            if (!$p->isReadable()) continue;
+
+            $val = $this->__get($p->getKey());
+            $arr[(string) $p] = $val;
+        }
+
+        return new \ArrayIterator($arr);
     }
 
     /**
@@ -139,7 +149,7 @@ abstract class aDataOptions
         if ($property_key !== null)
             $props = [(string)$property_key];
         else
-            $props = $this->__props();
+            $props = $this->_getProperties();
 
         /** @var PropObject $propObject */
         foreach($props as $propObject) {
@@ -225,7 +235,7 @@ abstract class aDataOptions
 
         /** @var PropObject $p */
         $s = 0;
-        foreach($this->__props() as $p) {
+        foreach($this->_getProperties() as $p) {
 //            if (!$p->isReadable()) continue;
             $s++;
         }
@@ -309,12 +319,65 @@ abstract class aDataOptions
 
     /**
      * Get Options Properties Information
+     *
      * !! used as iterator statement
      */
-    protected function __props()
+    protected function _getProperties()
     {
-        if ($this->_cachedProps !== null)
-            return $this->_cachedProps;
+        // DO_LEAST_PHPVER_SUPPORT v5.5
+        if (version_compare(phpversion(), '5.5.0') < 0)
+            ## php version not support yield
+            return $this->_fix_getProperties();
+        
+        return $this->_gen_getProperties();
+    }
+
+    protected function _fix_getProperties()
+    {
+        if ($this->_c__properties !== null)
+            return $this->_c__properties;
+
+        $props   = array();
+
+        $ref     = $this->_newReflection();
+        $methods = $ref->getMethods(ReflectionMethod::IS_PUBLIC);
+        foreach($methods as $method) {
+            foreach(array('set', 'get', 'is') as $prefix) {
+                if (strpos($method->getName(), $prefix) === 0) {
+                    if (in_array($method->getName(), $this->doWhichMethodIgnored()))
+                        ## it will use as internal option method
+                        continue;
+
+                    ## getAttributeName -> AttributeName
+                    $propertyName = substr($method->getName(), strlen($prefix));
+                    $propertyName = $this->_normalize($propertyName, 'external');
+
+                    $property = new PropObject($propertyName);
+                    ## mark readable/writable for property
+                    ($prefix == 'set')
+                        ? $property->setWritable()
+                        : $property->setReadable()
+                    ;
+
+                    $props[$propertyName] = $property;
+                }
+            }
+        }
+
+        return $this->_c__properties = $props;
+    }
+
+    // DO_LEAST_PHPVER_SUPPORT v5.5 yield
+    protected function _gen_getProperties()
+    {
+        if ($this->_c__properties !== null) {
+            foreach ($this->_c__properties as $name => $property)
+                yield $property;
+
+            return;
+        }
+
+        // ..
 
         $props   = array();
 
@@ -340,24 +403,13 @@ abstract class aDataOptions
 
                     $props[$propertyName] = $property;
 
-                    // DO_LEAST_PHPVER_SUPPORT
-                    if (version_compare(phpversion(), '5.4.0') < 0)
-                        ## php version not support yield
-                        VOID;
-                    else
-                        yield $property;
+
+                    yield $property;
                 }
             }
         }
 
-        $this->_cachedProps = $props;
-        
-        // DO_LEAST_PHPVER_SUPPORT
-        if (version_compare(phpversion(), '5.4.0') < 0)
-            ## php version not support yield
-            return $props;
-        
-        return;
+        $this->_c__properties = $props;
     }
 
     protected function _getGetterIfHas($key, $prefix = 'get')

@@ -9,18 +9,18 @@ class FactoryEnvironment
     protected static $_aliases = array(
         ## 'name'            => EnvBase | \Path\To\Class  
 
-        // DO_LEAST_PHPVER_SUPPORT
+        // DO_LEAST_PHPVER_SUPPORT v5.5
         // 'development'     => \Poirot\Std\Environment\EnvDevelopment::class,
         'development'     => '\Poirot\Std\Environment\EnvDevelopment',
         'dev'             => 'development',
         'debug'           => 'development',
 
-        // DO_LEAST_PHPVER_SUPPORT
+        // DO_LEAST_PHPVER_SUPPORT v5.5
         // 'production'      => \Poirot\Std\Environment\EnvProduction::class,
         'production'      => '\Poirot\Std\Environment\EnvProduction',
         'prod'            => 'production',
 
-        // DO_LEAST_PHPVER_SUPPORT
+        // DO_LEAST_PHPVER_SUPPORT v5.5
         // 'php-environment' => \Poirot\Std\Environment\EnvServerDefault::class,
         'php-environment' => '\Poirot\Std\Environment\EnvServerDefault',
         'php'             => 'php-environment',
