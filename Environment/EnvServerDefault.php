@@ -1,7 +1,8 @@
 <?php
 namespace Poirot\Std\Environment;
 
-class EnvServerDefault extends EnvBase
+class EnvServerDefault 
+    extends EnvBase
 {
     /**
      * @return mixed

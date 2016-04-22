@@ -29,7 +29,7 @@ die('>_');
 
 class CollectionObject implements iCollectionObject, \Iterator
 {
-    protected $_objs  = [
+    protected $_objs  = array(
         /*
         '0xc33223Etag' => [
             'data' => [
@@ -40,9 +40,9 @@ class CollectionObject implements iCollectionObject, \Iterator
         ],
         // ...
         */
-    ];
+    );
 
-    protected $__cached_obj_tags = [];
+    protected $__cached_obj_tags = array();
 
     /** @var string current iterator key */
     protected $_trav__curr_index;
@@ -66,7 +66,7 @@ class CollectionObject implements iCollectionObject, \Iterator
      * @throws \InvalidArgumentException Object Type Mismatch
      * @return string ETag Hash Identifier of object
      */
-    function insert($object, array $data = [])
+    function insert($object, array $data = array())
     {
         $this->doValidateObject($object);
 
@@ -80,7 +80,7 @@ class CollectionObject implements iCollectionObject, \Iterator
             ## merge data if object exists
             $data = array_merge($this->_objs[$hash]['data'], $data);
 
-        $this->_objs[$hash] = ['object' => $object, 'data' => $data];
+        $this->_objs[$hash] = array('object' => $object, 'data' => $data);
 
         return $hash;
     }
@@ -164,21 +164,40 @@ class CollectionObject implements iCollectionObject, \Iterator
         if ($data == array_values($data))
             throw new \InvalidArgumentException('Data tags must be associative array.');
 
-        // .....................
-        if (isset($data[':etag']) && $hash = $data[':etag'])
-            // ETags is unique and if present only search for etag match
+        # ETags is unique and if present only search for etag match
+        if (isset($data['etag']) && $hash = $data['etag'])
             if ($this->has($hash)) {
-                yield $hash => $this->_objs[$hash]['object'];
+                $r = array($hash => $this->_objs[$hash]['object']);
+                // DO_LEAST_PHPVER_SUPPORT
+                if (version_compare(phpversion(), '5.4.0') < 0)
+                    ## php version not support yield
+                    return new \ArrayIterator($r);
+
+                yield $r;
                 return;
             }
-        // ............................................................
 
+
+        # Find data match
+        $return = array();
         foreach($this->_objs as $hash => $obAr) {
             $obData = $obAr['data'];
-            if ($data == array_intersect_assoc($obData, $data))
-                yield $hash => $this->_objs[$hash]['object'];
+            if ($data == array_intersect_assoc($obData, $data)) {
+                $r = array($hash => $this->_objs[$hash]['object']);
+                // DO_LEAST_PHPVER_SUPPORT
+                if (version_compare(phpversion(), '5.4.0') < 0)
+                    ## php version not support yield
+                    $return[] = $r;
+                else 
+                    yield $r;
+            }
         }
 
+        // DO_LEAST_PHPVER_SUPPORT
+        if (version_compare(phpversion(), '5.4.0') < 0)
+            ## php version not support yield
+            return $return;
+        
         return;
     }
 
@@ -199,7 +218,6 @@ class CollectionObject implements iCollectionObject, \Iterator
             throw new \Exception('Object Not Found.');
 
         $hash = $this->genETag($object);
-
         return $this->_objs[$hash]['data'];
     }
 
@@ -223,10 +241,9 @@ class CollectionObject implements iCollectionObject, \Iterator
         if ($data == array_values($data))
             throw new \InvalidArgumentException('Data tags must be associative array.');
 
+
         $hash = $this->genETag($object);
-
         $this->_objs[$hash]['data'] = $data;
-
         return $this;
     }
 
@@ -242,7 +259,6 @@ class CollectionObject implements iCollectionObject, \Iterator
         $this->doValidateObject($object);
 
         $hash = md5(\Poirot\Std\flatten($object));
-
         return $hash;
     }
 
@@ -255,7 +271,6 @@ class CollectionObject implements iCollectionObject, \Iterator
     public function current()
     {
         $current = $this->_trav__curr_index;
-
         return $this->_objs[$current]['object'];
     }
 
@@ -265,7 +280,6 @@ class CollectionObject implements iCollectionObject, \Iterator
     public function next()
     {
         $data = next($this->_objs);
-
         $this->_trav__curr_index = ($data) ? $data['data']['etag'] : false;
     }
 

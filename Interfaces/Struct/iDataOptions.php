@@ -5,7 +5,8 @@ namespace Poirot\Std\Interfaces\Struct;
  * Options Is DataStruct Can Be Check Against Fulfillment
  *
  */
-interface iDataOptions extends iData
+interface iDataOptions 
+    extends iData
 {
     /**
      * Is Required Property Full Filled?

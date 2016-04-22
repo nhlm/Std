@@ -25,7 +25,7 @@ class Config extends DataEntity
      */
     protected function __setFrom($resource)
     {
-        if (isString($resource)) {
+        if (isStringify($resource)) {
             if (is_file($resource))
                 $this->fromFile($resource);
             else

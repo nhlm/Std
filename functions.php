@@ -1,15 +1,15 @@
 <?php
-namespace {
-    !defined('POIROT_CORE_LOADED') and define('POIROT_CORE_LOADED', true);
-
-    !defined('DS') and define('DS', DIRECTORY_SEPARATOR);
-
-    # !! don't store this value, void mean everything nothing
-    !defined('VOID') and define('VOID', "\0"/*uniqid('__not_set_value__')*/);
+namespace
+{
+    !defined('DS')   and define('DS', DIRECTORY_SEPARATOR);
+    !defined('VOID') and define('VOID', "\0");
 }
 
 namespace Poirot\Std
 {
+    use Closure;
+    use ReflectionFunction;
+
     use Poirot\Std\Type\StdArray;
     use Poirot\Std\Type\StdString;
     use Poirot\Std\Type\StdTravers;
@@ -26,11 +26,14 @@ namespace Poirot\Std
     function cast($type)
     {
         switch(1) {
-            case isString($type): $return = new StdString($type);
+            case isStringify($type):
+                $return = new StdString($type);
                 break;
-            case is_array($type) : $return = new StdArray($type);
+            case is_array($type):
+                $return = new StdArray($type);
                 break;
-            case ($type instanceof \Traversable) : $return = new StdTravers($type);
+            case ($type instanceof \Traversable):
+                $return = new StdTravers($type);
                 break;
 
             default: throw new \UnexpectedValueException(sprintf(
@@ -42,7 +45,7 @@ namespace Poirot\Std
     }
 
     /**
-     * With Null Data Return Default Value
+     * With null|false Data Return Default Value
      * Elsewhere Return Data
      *
      * @param null|false|mixed $data
@@ -50,7 +53,7 @@ namespace Poirot\Std
      *
      * @return mixed
      */
-    function ifNull($data, $default)
+    function emptyCoalesce($data, $default)
     {
         return ($data === null || $data === false) ? $default : $data;
     }
@@ -62,17 +65,12 @@ namespace Poirot\Std
      *
      * @return bool
      */
-    function isString($var)
+    function isStringify($var)
     {
-        return (
-            (!is_array($var))
-            &&
-            (
-                (!is_object($var) && @settype($var, 'string') !== false)
-                ||
-                (is_object($var)  && method_exists($var, '__toString' ))
-            )
-        );
+        return ( (!is_array($var)) && (
+            (!is_object($var) && @settype($var, 'string') !== false) ||
+            (is_object($var)  && method_exists($var, '__toString' ))
+        ));
     }
 
     /**
@@ -84,8 +82,8 @@ namespace Poirot\Std
      */
     function flatten($value)
     {
-        if ($value instanceof \Closure) {
-            $closureReflection = new \ReflectionFunction($value);
+        if ($value instanceof Closure) {
+            $closureReflection = new ReflectionFunction($value);
             $value = sprintf(
                 '(Closure at %s:%s)',
                 $closureReflection->getFileName(),

@@ -12,7 +12,8 @@ echo $not_defined_variable;
 
 */
 
-abstract class EnvBase extends aDataOptions
+abstract class EnvBase
+    extends    aDataOptions
 {
     protected $displayErrors;
     protected $errorReporting;
@@ -29,14 +30,14 @@ abstract class EnvBase extends aDataOptions
     final function apply($settings = null)
     {
         if ($settings !== null)
-            $this->from($settings);
+            $this->import($settings);
 
         # initialize specific environment
         $this->initApply();
 
         # do apply by current options value
         foreach($this as $prop => $value) {
-            $method = 'do'.(new StdString($prop))->camelCase();
+            $method = 'do'.\Poirot\Std\cast($prop)->camelCase();
             if (method_exists($this, $method))
                 $this->{$method}($value);
         }
@@ -49,7 +50,9 @@ abstract class EnvBase extends aDataOptions
 
     // ...
 
-
+    /**
+     * Called On Apply With Option Value of getDisplayErrors
+     */
     function doDisplayErrors($value)
     {
         ini_set('display_errors', $value);

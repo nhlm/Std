@@ -71,7 +71,7 @@ final class ErrorStack
      */
     static function hasHandling()
     {
-        return (bool) self::getLevel();
+        return (bool) self::getStackNum();
     }
 
     /**
@@ -79,7 +79,7 @@ final class ErrorStack
      *
      * @return int
      */
-    static function getLevel()
+    static function getStackNum()
     {
         return count(self::$_STACK);
     }
@@ -90,15 +90,19 @@ final class ErrorStack
      * data/files when a critical error happens, or when you need to -
      * trigger an error under certain conditions
      *
-     * - handleError(callable)
-     * - handleError(E_ALL, callable)
-     *   callable:
-     *   func(\ErrorException $errorExc)
+     * !! In Case that callable not passed as argument the error can
+     *    retrieved with ::handleDone as \ErrorException
+     *
+     * Usage:
+     *  handleError(callable)
+     *  handleError(E_ALL, callable)
+     *
+     *  callable: func(\ErrorException $errorExc)
      *
      * @param int $errorLevel
      * @param callable|null $callable
      */
-    static function handleError($errorLevel = null, $callable = null)
+    static function handleError($errorLevel = null, /* callable */ $callable = null)
     {
         ## in case that handleError(callable) invoked
         if (is_callable($errorLevel)) {
@@ -118,7 +122,7 @@ final class ErrorStack
             'has_error'   => null,
         );
 
-        ## define error handler
+        ## define stack error handler
         $self = new self;
         set_error_handler(
             function($errno, $errstr = '', $errfile = '', $errline = 0) use ($self) {
@@ -134,25 +138,26 @@ final class ErrorStack
      * data/files when a critical error happens, or when you need to -
      * trigger an error under certain conditions
      *
-     * - handleException(callable)
-     *   callable:
-     *   func(\Exception $e)
+     * callable: func(\Exception $e)
      *
-     * @param callable|null $callable
+     * @param callable $callable
      */
-    static function handleException(callable $callable = null)
+    static function handleException(/*callable*/ $callable)
     {
         $self = new self;
-        set_exception_handler(function($exception) use ($self) {
-            call_user_func(array($self, '_handleErrors'), $exception);
-        });
 
+        # append error stack retrieved by self::_HandleErrors
         self::$_STACK[] = array(
             'error_type'  => $self::ERR_TYP_EXCEPTION,
             'callable'    => $callable,
             'error_level' => null,
             'has_error'   => null,
         );
+
+        ## define stack exception handler
+        set_exception_handler(function($exception) use ($self) {
+            call_user_func(array($self, '_handleErrors'), $exception);
+        });
     }
 
     /**
@@ -165,16 +170,16 @@ final class ErrorStack
         if (!self::hasHandling())
             return null;
 
-        $stack = self::$_STACK[self::getLevel()-1];
+        $stack = self::$_STACK[self::getStackNum()-1];
         return $stack['has_error'];
     }
 
     /**
-     * Stopping the error handler
+     * Stopping The Error Handling Stack
      *
-     * - return last error if it exists
+     * !! It can using only for error not exceptions
      *
-     * @return null|ErrorException
+     * @return null|ErrorException Last error if has
      */
     static function handleDone()
     {
@@ -222,6 +227,33 @@ final class ErrorStack
         return trigger_error($message, $errorType);
     }
 
+    /**
+     * Get PHP Error Code To String
+     * @param int $code
+     * @return string
+     */
+    static function errCodeToString($code)
+    {
+        switch ($code) {
+            case E_ERROR:             return 'E_ERROR';
+            case E_WARNING:           return 'E_WARNING';
+            case E_PARSE:             return 'E_PARSE';
+            case E_NOTICE:            return 'E_NOTICE';
+            case E_CORE_ERROR:        return 'E_CORE_ERROR';
+            case E_CORE_WARNING:      return 'E_CORE_WARNING';
+            case E_COMPILE_ERROR:     return 'E_COMPILE_ERROR';
+            case E_COMPILE_WARNING:   return 'E_COMPILE_WARNING';
+            case E_USER_ERROR:        return 'E_USER_ERROR';
+            case E_USER_WARNING:      return 'E_USER_WARNING';
+            case E_USER_NOTICE:       return 'E_USER_NOTICE';
+            case E_STRICT:            return 'E_STRICT';
+            case E_RECOVERABLE_ERROR: return 'E_RECOVERABLE_ERROR';
+            case E_DEPRECATED:        return 'E_DEPRECATED';
+            case E_USER_DEPRECATED:   return 'E_USER_DEPRECATED';
+        }
+
+        return 'Unknown PHP error';
+    }
 
     // ...
 
@@ -233,7 +265,7 @@ final class ErrorStack
      */
     static protected function _handleErrors($errno, $errstr = '', $errfile = '', $errline = 0)
     {
-        $Stack = & self::$_STACK[self::getLevel()-1];
+        $Stack = & self::$_STACK[self::getStackNum()-1];
 
         if (! $errno instanceof \Exception)
             ## handle errors
@@ -249,7 +281,7 @@ final class ErrorStack
         if ($Stack['callable'] === null)
             return;
 
-        $currLevel = self::getLevel();
+        $currLevel = self::getStackNum();
         try {
             ## call user error handler callable
             ## exception will passed as errno on exception catch
@@ -257,7 +289,7 @@ final class ErrorStack
             
         } catch (\Exception $e) {
             ## during handling an error if any exception happen it must handle with parent handler
-            if (self::getLevel() == $currLevel)
+            if (self::getStackNum() == $currLevel)
                 ## close current handler if not, the handleDone may be called from within handler callable
                 self::handleDone();
 
@@ -267,7 +299,7 @@ final class ErrorStack
 
             $isHandled = false;
             while (self::hasHandling()) {
-                $Stack = & self::$_STACK[self::getLevel()-1];
+                $Stack = & self::$_STACK[self::getStackNum()-1];
                 if ($Stack['error_type'] == self::ERR_TYP_EXCEPTION) {
                     $isHandled = true;
                     self::_handleErrors($e);

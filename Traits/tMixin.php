@@ -5,7 +5,7 @@ namespace Poirot\Std\Traits;
  * TODO Call by reference not working as expected
  *
     $changeMe = 'I`m Bad.';
-    $openCall = new OpenCall();
+    $openCall = new Mixin();
 
     $_F_make = function(&$changeMe) {
     $changeMe = 'We make you good.';
@@ -17,7 +17,7 @@ namespace Poirot\Std\Traits;
  *
  */
 
-trait tOpenCall
+trait tMixin
 {
     private $_t__methods = [];
     private $_t__bindTo;

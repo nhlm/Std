@@ -15,7 +15,7 @@ interface ipInvokableCallback extends ipInvokable
      *
      * @return $this
      */
-    function setCallable(callable $callable);
+    function setCallable(/*callable*/ $callable);
 
     /**
      * Get Callable

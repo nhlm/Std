@@ -1,9 +1,12 @@
 <?php
 namespace Poirot\Std\Type;
 
+use ReflectionClass;
+
 require_once __DIR__.'/AbstractNSplType.php';
 
-class NSplEnum extends AbstractNSplType
+class NSplEnum 
+    extends AbstractNSplType
 {
     /* Constants */
     const __default = null ; // self::CONSTANT_VAL
@@ -44,7 +47,7 @@ class NSplEnum extends AbstractNSplType
         if (isset($this->_c__consts))
             return $this->_c__consts;
 
-        $reflection = new \ReflectionClass($this);
+        $reflection = new ReflectionClass($this);
         $consts     = $reflection->getConstants();
         if ((bool)$include_default === false)
             unset($consts['__default']);

@@ -1,6 +1,7 @@
 <?php
 namespace Poirot\Std;
 
+// DO_LEAST_PHPVER_SUPPORT
 if (version_compare(phpversion(), '5.4.0') < 0) {
     ## php version not support traits
     require_once __DIR__.'/fixes/ConfigurableSetter.php';

@@ -6,7 +6,8 @@ if (!class_exists('\SplEnum')) {
     class_alias('\Poirot\Std\Type\NSplEnum', '\SplEnum');
 }
 
-class StdEnum extends \SplEnum
+class StdEnum 
+    extends \SplEnum
 {
 
 }

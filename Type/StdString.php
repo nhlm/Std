@@ -6,7 +6,8 @@ if (!class_exists('\SplString')) {
     class_alias('\Poirot\Std\Type\NSplString', '\SplString');
 }
 
-final class StdString extends \SplString
+final class StdString 
+    extends \SplString
 {
     /**
      * Sanitize Underscore To Camelcase
@@ -16,7 +17,7 @@ final class StdString extends \SplString
     function camelCase()
     {
         $Pascal = lcfirst((string)$this->PascalCase());
-        return new static($Pascal);
+        return new StdString($Pascal);
     }
 
     /**
@@ -27,7 +28,7 @@ final class StdString extends \SplString
     function PascalCase()
     {
         $key = (string) $this;
-        return new static(str_replace(' ', '', ucwords(str_replace('_', ' ', $key))));
+        return new StdString(str_replace(' ', '', ucwords(str_replace('_', ' ', $key))));
     }
 
     /**
@@ -42,6 +43,6 @@ final class StdString extends \SplString
         $pattern     = ['#(?<=(?:[A-Z]))([A-Z]+)([A-Z][A-z])#', '#(?<=(?:[a-z0-9]))([A-Z])#'];
         $replacement = ['\1_\2', '_\1'];
 
-        return new static(strtolower(preg_replace($pattern, $replacement, $key)));
+        return new StdString(strtolower(preg_replace($pattern, $replacement, $key)));
     }
 }

@@ -1,6 +1,8 @@
 <?php
 namespace Poirot\Std\Struct;
 
+use ReflectionClass;
+use ReflectionMethod;
 use Traversable;
 
 use Poirot\Std;
@@ -21,7 +23,7 @@ abstract class aDataOptions
     /** @var int @required description about field */
     // protected $planCode;
 
-    protected $_t_options__ignored = [];
+    protected $_t_options__ignored = array();
     protected $_c_is_process_ignored_notation = false; // used as internal cache
 
     /**
@@ -31,6 +33,9 @@ abstract class aDataOptions
 
     /** @var \Closure Property keys normalizer */
     protected $__normalizer;
+    /** @var ReflectionClass */
+    protected $_c_reflection;
+    protected $_c_count;
 
     /**
      * Do Set Data From
@@ -92,6 +97,22 @@ abstract class aDataOptions
      */
     public function getIterator()
     {
+        // DO_LEAST_PHPVER_SUPPORT
+        if (version_compare(phpversion(), '5.4.0') < 0) {
+            ## php version not support yield
+            $arr = array();
+            foreach($this->__props() as $p) {
+                if (!$p->isReadable()) continue;
+
+                $val = $this->__get($p->getKey());
+                $arr[(string) $p] = $val;
+            }
+            
+            return new \ArrayIterator($arr);
+        }
+        
+        // ...
+        
         /** @var PropObject $p */
         foreach($this->__props() as $p) {
             if (!$p->isReadable()) continue;
@@ -197,9 +218,8 @@ abstract class aDataOptions
      */
     public function count()
     {
-        static $_c__sum;
-        if ($_c__sum !== null)
-            return $_c__sum;
+        if ($this->_c_count !== null)
+            return $this->_c_count;
 
         // ..
 
@@ -210,7 +230,7 @@ abstract class aDataOptions
             $s++;
         }
 
-        return $_c__sum = $s;
+        return $this->_c_count = $s;
     }
 
     /**
@@ -249,7 +269,7 @@ abstract class aDataOptions
         $return = null;
         if ($getter = $this->_getGetterIfHas($key))
             $return = $this->$getter();
-        elseif ($this->_isMethodExists('set' . $this->__normalize($key, 'internal')))
+        elseif ($this->_isMethodExists('set' . $this->_normalize($key, 'internal')))
             throw new \Exception(sprintf(
                 'The Property (%s) is writeonly.'
                 , $key
@@ -289,26 +309,19 @@ abstract class aDataOptions
 
     /**
      * Get Options Properties Information
-     *
+     * !! used as iterator statement
      */
     protected function __props()
     {
+        if ($this->_cachedProps !== null)
+            return $this->_cachedProps;
 
-props_st:
-        if ($this->_cachedProps !== null) {
-            /** @var PropObject $prop */
-            foreach($this->_cachedProps as $prop)
-                yield $prop;
+        $props   = array();
 
-            return;
-        }
-
-        $props   = [];
-
-        $ref     = $this->_reflection();
-        $methods = $ref->getMethods(\ReflectionMethod::IS_PUBLIC);
+        $ref     = $this->_newReflection();
+        $methods = $ref->getMethods(ReflectionMethod::IS_PUBLIC);
         foreach($methods as $method) {
-            foreach(['set', 'get', 'is'] as $prefix) {
+            foreach(array('set', 'get', 'is') as $prefix) {
                 if (strpos($method->getName(), $prefix) === 0) {
                     if (in_array($method->getName(), $this->doWhichMethodIgnored()))
                         ## it will use as internal option method
@@ -316,26 +329,40 @@ props_st:
 
                     ## getAttributeName -> AttributeName
                     $propertyName = substr($method->getName(), strlen($prefix));
-                    $propertyName = $this->__normalize($propertyName, 'external');
+                    $propertyName = $this->_normalize($propertyName, 'external');
 
-                    // mark readable/writable for property
-                    (isset($props[$propertyName])) ?: $props[$propertyName] = new PropObject($propertyName);
+                    $property = new PropObject($propertyName);
+                    ## mark readable/writable for property
                     ($prefix == 'set')
-                        ? $props[$propertyName]->setWritable()
-                        : $props[$propertyName]->setReadable()
+                        ? $property->setWritable()
+                        : $property->setReadable()
                     ;
 
+                    $props[$propertyName] = $property;
+
+                    // DO_LEAST_PHPVER_SUPPORT
+                    if (version_compare(phpversion(), '5.4.0') < 0)
+                        ## php version not support yield
+                        VOID;
+                    else
+                        yield $property;
                 }
             }
         }
 
         $this->_cachedProps = $props;
-        goto props_st;
+        
+        // DO_LEAST_PHPVER_SUPPORT
+        if (version_compare(phpversion(), '5.4.0') < 0)
+            ## php version not support yield
+            return $props;
+        
+        return;
     }
 
     protected function _getGetterIfHas($key, $prefix = 'get')
     {
-        $getter = $prefix . $this->__normalize($key, 'internal');
+        $getter = $prefix . $this->_normalize($key, 'internal');
         if (! ( $result = $this->_isMethodExists($getter) ) && $prefix === 'get')
             return $this->_getGetterIfHas($key, 'is');
 
@@ -344,7 +371,7 @@ props_st:
 
     protected function _getSetterIfHas($key)
     {
-        $setter = 'set' . $this->__normalize($key, 'internal');
+        $setter = 'set' . $this->_normalize($key, 'internal');
         return ($this->_isMethodExists($setter)) ? $setter : false;
     }
 
@@ -354,7 +381,7 @@ props_st:
      * @param string $type internal|external
      * @return string
      */
-    protected function __normalize($key, $type)
+    protected function _normalize($key, $type)
     {
         $type = strtolower($type);
 
@@ -379,7 +406,7 @@ props_st:
 
     protected function __extractValueAndExpectedMatchExpression($property_key)
     {
-        $ref = $this->_reflection();
+        $ref = $this->_newReflection();
 
 
         // ...
@@ -400,7 +427,7 @@ props_st:
          * @property string sanitizedProperty @required description of property usage
          */
         $classDocComment = $ref->getDocComment();
-        $regex = '/(@property\s*)(?P<expected>[\w\|]+\s*)('.$this->__normalize($property_key, 'internal').'+\s*)@required/';
+        $regex = '/(@property\s*)(?P<expected>[\w\|]+\s*)('.$this->_normalize($property_key, 'internal').'+\s*)@required/';
         if ($classDocComment !== false && preg_match($regex, $classDocComment, $matches)) {
             $expectedValue = $matches['expected'];
             goto done;
@@ -427,7 +454,7 @@ props_st:
          * @var string|null|object|\Stdclass|void @required
          */
         try {
-            $propRef     = $ref->getProperty($this->__normalize($property_key, 'internal'));
+            $propRef     = $ref->getProperty($this->_normalize($property_key, 'internal'));
             $propComment = $propRef->getDocComment();
             $regex = '/(@var\s+)(?P<expected>[\w\s\|]*)(@required)/';
             if ($propComment !== false && preg_match($regex, $propComment, $matches)) {
@@ -437,7 +464,7 @@ props_st:
         } catch(\Exception $e) {}
 
 done:
-        return [$currentValue, $expectedValue];
+        return array($currentValue, $expectedValue);
     }
 
     /**
@@ -485,7 +512,7 @@ done:
      */
     protected function __ignoreFromDocBlock()
     {
-        $ref = $this->_reflection();
+        $ref = $this->_newReflection();
 
         // ignored methods from Class DocComment:
         $classDocComment = $ref->getDocComment();
@@ -499,7 +526,7 @@ done:
         }
 
         // ignored methods from Method DocBlock
-        $methods = $ref->getMethods(\ReflectionMethod::IS_PUBLIC);
+        $methods = $ref->getMethods(ReflectionMethod::IS_PUBLIC);
         foreach($methods as $m) {
             $mc = $m->getDocComment();
             if (preg_match('/@ignore\s/', $mc, $matches))
@@ -519,7 +546,7 @@ done:
         $return = method_exists($this, $method);
         if ($return) {
             ## it must be exists also be public accessible
-            $ref    = $this->_reflection();
+            $ref    = $this->_newReflection();
             $ref    = $ref->getMethod($method);
             $return = $return && $ref->isPublic();
         }
@@ -531,12 +558,11 @@ done:
     /**
      * @return \ReflectionClass
      */
-    protected function _reflection()
+    protected function _newReflection()
     {
-        static $static;
-        if (is_null($static))
-            $static = new \ReflectionClass($this);
+        if ($this->_c_reflection === null)
+            $this->_c_reflection = new ReflectionClass($this);
 
-        return $static;
+        return $this->_c_reflection;
     }
 }

@@ -19,7 +19,7 @@ interface iData extends \IteratorAggregate, \Countable
      * @throws \InvalidArgumentException
      * @return $this
      */
-    function from($data);
+    function import($data);
 
     /**
      * Empty from all values

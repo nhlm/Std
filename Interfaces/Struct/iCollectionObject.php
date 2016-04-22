@@ -1,7 +1,8 @@
 <?php
 namespace Poirot\Std\Interfaces\Struct;
 
-interface iCollectionObject extends iCollection
+interface iCollectionObject 
+    extends iCollection
 {
     /**
      * Attach Object
@@ -22,7 +23,7 @@ interface iCollectionObject extends iCollection
      * @throws \InvalidArgumentException Object Type Mismatch
      * @return string ETag Hash Identifier of object
      */
-    function insert($object, array $data = []);
+    function insert($object, array $data = array());
 
     /**
      * Checks if the storage contains a specific object

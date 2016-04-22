@@ -1,7 +1,8 @@
 <?php
 namespace Poirot\Std\Interfaces\Struct;
 
-interface iDataEntity extends iData
+interface iDataEntity 
+    extends iData
 {
     /**
      * Set Entity

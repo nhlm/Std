@@ -1,5 +1,7 @@
 <?php
 ## ===================================================
+## | DO_LEAST_PHPVER_SUPPORT
+## | 
 ## | This fix is Code Clone of ../ConfigurableSetter
 ## | it will resolve when php not support Traits
 ## | @see ../ConfigurableSetter
@@ -17,17 +19,7 @@ class ConfigurableSetter
     ## just determine that fixed class loaded in debugs
     protected $IS_FIX;
 
-    /**
-     * Construct
-     *
-     * @param array $setter
-     */
-    function __construct(array $setter = null)
-    {
-        if ($setter !== null)
-            $this->with($setter);
-    }
-
+    
     ## @see tConfigurableSetter;
     ## Code Clone <begin> =================================================================
     /**

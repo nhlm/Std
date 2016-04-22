@@ -3,31 +3,29 @@ namespace Poirot\Std\Environment;
 
 use Poirot\Std\Interfaces\Pact\ipFactory;
 
-/*
-
-$EnvSettings = AliasEnvFactory::with(function() {
-    $default = ($env_mode = getenv('POIROT_ENV_MODE')) ? $env_mode : 'default';
-    return (defined('DEBUG') && constant('DEBUG')) ? 'dev' : $default;
-});
-$EnvSettings->apply();
-
-*/
-
 class FactoryEnvironment
     implements ipFactory
 {
-    protected static $_aliases = [
-        'development'     => \Poirot\Std\Environment\EnvDevelopment::class,
+    protected static $_aliases = array(
+        ## 'name'            => EnvBase | \Path\To\Class  
+
+        // DO_LEAST_PHPVER_SUPPORT
+        // 'development'     => \Poirot\Std\Environment\EnvDevelopment::class,
+        'development'     => '\Poirot\Std\Environment\EnvDevelopment',
         'dev'             => 'development',
         'debug'           => 'development',
 
-        'production'      => \Poirot\Std\Environment\EnvProduction::class,
+        // DO_LEAST_PHPVER_SUPPORT
+        // 'production'      => \Poirot\Std\Environment\EnvProduction::class,
+        'production'      => '\Poirot\Std\Environment\EnvProduction',
         'prod'            => 'production',
 
-        'php-environment' => \Poirot\Std\Environment\EnvServerDefault::class,
+        // DO_LEAST_PHPVER_SUPPORT
+        // 'php-environment' => \Poirot\Std\Environment\EnvServerDefault::class,
+        'php-environment' => '\Poirot\Std\Environment\EnvServerDefault',
         'php'             => 'php-environment',
         'default'         => 'php',
-    ];
+    );
 
     /**
      * Build Object With Provided Options
@@ -123,11 +121,11 @@ class FactoryEnvironment
      * @param string         $name        Registered Name
      * @param array          $aliases     Name Aliases
      */
-    static function register($environment, $name, array $aliases = [])
+    static function register($environment, $name, array $aliases = array())
     {
         if (
-            (is_string($environment) && !class_exists($environment))
-            || (is_object($environment) && !$environment instanceof EnvBase)
+            (is_string($environment) && !class_exists($environment)) || 
+            (is_object($environment) && !$environment instanceof EnvBase)
         )
             throw new \InvalidArgumentException(sprintf(
                 'Invalid Environment Provided; It must be class name or object instance of EnvBase. given: (%s).'
@@ -135,7 +133,6 @@ class FactoryEnvironment
             ));
 
         self::$_aliases[$name] = $environment;
-
         self::setAlias($name, $aliases);
     }
 

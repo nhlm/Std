@@ -7,39 +7,10 @@ namespace Poirot\Std\Environment;
  *
  */
 
-class EnvProduction extends EnvBase
+class EnvProduction
+    extends EnvBase
 {
-    /**
-     * @return mixed
-     */
-    function getDisplayErrors()
-    {
-        if($this->errorReporting === null)
-            $this->setDisplayErrors(0);
-
-        return $this->displayErrors;
-    }
-
-    /**
-     * @return mixed
-     */
-    function getErrorReporting()
-    {
-        if($this->errorReporting === null)
-            ## we will do our own error handling
-            $this->setErrorReporting(0);
-
-        return $this->errorReporting;
-    }
-
-    /**
-     * @return mixed
-     */
-    function getDisplayStartupErrors()
-    {
-        if($this->displayStartupErrors === null)
-            $this->setDisplayStartupErrors(0);
-
-        return $this->displayStartupErrors;
-    }
+    protected $displayErrors  = 0;
+    protected $errorReporting = 0;
+    protected $displayStartupErrors = 0;
 }

@@ -1,9 +1,12 @@
 <?php
 namespace Poirot\Std\Struct;
 
+use SplPriorityQueue;
+
 use Poirot\Std\Interfaces\Struct\iCollection;
 
-class CollectionPriority extends \SplPriorityQueue
+class CollectionPriority
+    extends SplPriorityQueue
     implements iCollection
 {
     protected $__sdec = PHP_INT_MAX;
@@ -11,7 +14,7 @@ class CollectionPriority extends \SplPriorityQueue
     /**
      * @var array a map to real existence data on spl queue for performance
      */
-    protected $__mapped_items = [];
+    protected $__mapped_items = array();
 
     /**
      * Insert a value with a given priority
@@ -28,10 +31,10 @@ class CollectionPriority extends \SplPriorityQueue
         if (!is_array($priority))
             $priority = [$priority, $this->__sdec--];
 
-        $this->__mapped_items[] = [
+        $this->__mapped_items[] = array(
             'priority' => $priority,
             'data'     => $data
-        ];
+        );
 
         parent::insert($data, $priority);
     }
@@ -93,7 +96,7 @@ class CollectionPriority extends \SplPriorityQueue
             // Just Iterate Over Entities will delete items
             VOID;
 
-        $this->__mapped_items = [];
+        $this->__mapped_items = array();
         return $this;
     }
 }

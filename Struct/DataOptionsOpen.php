@@ -1,16 +1,19 @@
 <?php
 namespace Poirot\Std\Struct;
 
+use ArrayIterator;
+
 use Poirot\Std\Interfaces\Struct\iDataOptions;
 use Poirot\Std\Struct\aDataOptions\PropObject;
 
-class DataOptionsOpen extends aDataOptions
+class DataOptionsOpen 
+    extends aDataOptions
     implements iDataOptions
 {
     /**
      * @var array
      */
-    protected $properties = [];
+    protected $properties = array();
 
     /**
      * Proxy for [set/get]Options()
@@ -24,7 +27,7 @@ class DataOptionsOpen extends aDataOptions
     function __call($method, $arguments)
     {
         $return = null;
-        foreach(['set', 'get', 'is'] as $action)
+        foreach(array('set', 'get', 'is') as $action)
             if (strpos($method, $action) === 0) {
                 ## method setter/getter/is found
                 $return = true;
@@ -44,7 +47,7 @@ class DataOptionsOpen extends aDataOptions
         // Option Name:
         $name = $method;
         $name = substr($name, -(strlen($name)-strlen($action))); // x for set/get
-        $name = $this->__normalize($name, 'external');
+        $name = $this->_normalize($name, 'external');
 
         // Take Action:
         switch ($action) {
@@ -75,13 +78,13 @@ class DataOptionsOpen extends aDataOptions
      */
     function __set($key, $value)
     {
-        $key = $this->__normalize($key, 'external');
+        $key = $this->_normalize($key, 'external');
 
         if ($setter = $this->_getSetterIfHas($key))
             ## using setter method
             $this->$setter($value);
 
-        if (in_array('set'.$this->__normalize($key, 'internal'), $this->doWhichMethodIgnored()))
+        if (in_array('set'.$this->_normalize($key, 'internal'), $this->doWhichMethodIgnored()))
             throw new \Exception(sprintf(
                 'The Property (%s) is not Writable.'
                 , $key
@@ -101,7 +104,7 @@ class DataOptionsOpen extends aDataOptions
      */
     function __get($key)
     {
-        $key = $this->__normalize($key, 'external');
+        $key = $this->_normalize($key, 'external');
 
         $return = null;
         if ($getter = $this->_getGetterIfHas($key))
@@ -109,7 +112,7 @@ class DataOptionsOpen extends aDataOptions
             $return = $this->$getter();
         elseif (array_key_exists($key, $this->properties)
             ## not ignored
-            && !in_array('get'.$this->__normalize($key, 'internal'), $this->doWhichMethodIgnored())
+            && !in_array('get'.$this->_normalize($key, 'internal'), $this->doWhichMethodIgnored())
         )
             $return = $this->properties[$key];
 
@@ -122,7 +125,7 @@ class DataOptionsOpen extends aDataOptions
      */
     function __unset($key)
     {
-        $key = $this->__normalize($key, 'external');
+        $key = $this->_normalize($key, 'external');
 
         if ($setter = $this->_getSetterIfHas($key))
             try{
@@ -143,7 +146,7 @@ class DataOptionsOpen extends aDataOptions
     {
         $methodProps  = parent::__props();
 
-        $props = [];
+        $props = array();
 
         // Methods as Options:
         foreach($methodProps as $p)
@@ -152,9 +155,9 @@ class DataOptionsOpen extends aDataOptions
         // Property Open Options:
         foreach(array_keys($this->properties) as $propertyName)
         {
-            foreach(['set', 'get', 'is'] as $prefix) {
+            foreach(array('set', 'get', 'is') as $prefix) {
                 # check for ignorant
-                $method = $prefix . $this->__normalize($propertyName, 'internal');
+                $method = $prefix . $this->_normalize($propertyName, 'internal');
                 if (in_array($method, $this->doWhichMethodIgnored()))
                     ## it will use as internal option method
                     continue;
@@ -168,7 +171,13 @@ class DataOptionsOpen extends aDataOptions
             }
         }
 
-        // Yield Combination:
+        ## Yield Combination:
+        
+        // DO_LEAST_PHPVER_SUPPORT
+        if (version_compare(phpversion(), '5.4.0') < 0)
+            ## php version not support yield
+            return new ArrayIterator($props);
+        
         foreach($props as $p)
             yield $p;
     }

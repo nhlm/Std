@@ -2,12 +2,10 @@
 namespace Poirot\Std\Struct;
 
 use Poirot\Std\Interfaces\Struct\iData;
-use Poirot\Std\Struct\Traits\aDataTrait;
 
-abstract class aDataAbstract implements iData
+abstract class aDataAbstract 
+    implements iData
 {
-    use aDataTrait;
-
     /**
      * AbstractStruct constructor.
      *
@@ -16,7 +14,7 @@ abstract class aDataAbstract implements iData
     function __construct($data = null)
     {
         if ($data !== null)
-            $this->from($data);
+            $this->import($data);
     }
 
     /**
@@ -33,4 +31,55 @@ abstract class aDataAbstract implements iData
      * @since 5.0.0
      */
     abstract function getIterator();
+
+    /**
+     * Set Struct Data From Array
+     *
+     * @param array|\Traversable|null $data
+     *
+     * @throws \InvalidArgumentException
+     * @return $this
+     */
+    function import($data)
+    {
+        if ($data === null)
+            return $this;
+
+        if (!(is_array($data) || $data instanceof \Traversable))
+            throw new \InvalidArgumentException(sprintf(
+                'Data must be instance of \Traversable or array. given: (%s)'
+                , \Poirot\Std\flatten($data)
+            ));
+
+        $this->doSetFrom($data);
+
+        return $this;
+    }
+
+    /**
+     * Empty from all values
+     * @return $this
+     */
+    function clean()
+    {
+        foreach($this as $k => $v)
+            $this->del($k);
+
+        return $this;
+    }
+
+    /**
+     * Is Empty?
+     * @return bool
+     */
+    function isEmpty()
+    {
+        $isEmpty = true;
+        foreach($this as $v) {
+            $isEmpty = false;
+            break;
+        }
+
+        return $isEmpty;
+    }
 }

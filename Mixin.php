@@ -1,13 +1,19 @@
 <?php
 namespace Poirot\Std;
 
-use Poirot\Std\Traits\tOpenCall;
+use Poirot\Std\Traits\tMixin;
+
+// DO_LEAST_PHPVER_SUPPORT
+if (version_compare(phpversion(), '5.4.0') < 0) {
+    ## php version not support $this(bind, bindTo) on Closures
+    throw new \Exception(sprintf('OpenCall need php >=5.4.0 you have (%s).', phpversion()));
+}
 
 /**
- * TODO Call by reference not working as expected
+ * Note: Call by reference not working as expected
  *
     $changeMe = 'I`m Bad.';
-    $openCall = new OpenCall();
+    $openCall = new Mixin();
 
     $_F_make = function(&$changeMe) {
         $changeMe = 'We make you good.';
@@ -19,9 +25,9 @@ use Poirot\Std\Traits\tOpenCall;
  *
  */
 
-class OpenCall
+class Mixin
 {
-    use tOpenCall;
+    use tMixin;
 
     /**
      * Construct

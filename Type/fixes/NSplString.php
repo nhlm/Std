@@ -7,7 +7,8 @@ require_once __DIR__.'/AbstractNSplType.php';
  * This class used as alias of \SplString if it not exists
  * @see StdString
  */
-class NSplString extends AbstractNSplType
+class NSplString 
+    extends AbstractNSplType
 {
     const __default = '';
 
@@ -24,7 +25,7 @@ class NSplString extends AbstractNSplType
     function __construct ($initial_value = self::__default, $strict = true )
     {
         if (is_object($initial_value)) {
-            if (\Poirot\Std\isString($initial_value))
+            if (\Poirot\Std\isStringify($initial_value))
                 $initial_value = (string) $initial_value;
         }
 

@@ -1,6 +1,7 @@
 <?php
 namespace Poirot\Std\Type;
 
+use ArrayIterator;
 use Traversable;
 
 if (!class_exists('\SplType')) {
@@ -32,7 +33,7 @@ final class StdArray extends \SplType
     // TODO As of PHP 5.6 we can use math expressions in PHP constants
     // const __default = [];
 
-    public $value = [];
+    public $value = array();
 
     /**
      * Creates a new value of some type
@@ -44,7 +45,7 @@ final class StdArray extends \SplType
      * @link http://php.net/manual/en/spltype.construct.php
      * // TODO As of PHP 5.6 we can use math expressions in PHP constants
      */
-    function __construct($initial_value = []/*self::__default*/, $strict = true)
+    function __construct($initial_value = array()/*self::__default*/, $strict = true)
     {
         if (is_array($initial_value))
             $this->value = $initial_value;
@@ -77,6 +78,11 @@ final class StdArray extends \SplType
      */
     function &select($query)
     {
+        /**
+         * @param $query
+         * @param $stackArr
+         * @return array|null
+         */
         $_f__select = function & ($query, &$stackArr) use (&$_f__select)
         {
             $queryOrig = $query;
@@ -103,7 +109,7 @@ final class StdArray extends \SplType
             ## match find(//):
             if ($ins === '') {
                 ### looking for any array elements to match query
-                $return = [];
+                $return = array();
                 foreach($stackArr as &$v) {
                     $r = &$_f__select($remainQuery, $v);
                     if ($r !== null)
@@ -129,7 +135,7 @@ final class StdArray extends \SplType
 
             ## match wildcard:
             if ($ins === '*') {
-                $return = [];
+                $return = array();
                 foreach($stackArr as &$v)
                     $return[] = &$_f__select($remainQuery, $v);
 
@@ -166,7 +172,7 @@ final class StdArray extends \SplType
      */
     function walk(\Closure $filter, $recursive = true)
     {
-        $arr = [];
+        $arr = array();
         foreach($this->value as $key => $val) {
             $flag = false;
             if ($filter !== null)
@@ -193,11 +199,15 @@ final class StdArray extends \SplType
      * one of the first array.
      *
      * @param  array|StdArray $b
-     * @return array
+     * @return StdArray
      */
     function merge($b)
     {
-        $b = (array) $b;
+        if ($b instanceof StdArray)
+            $b = $b->value;
+        else
+            $b = (array) $b;
+
         $a = $this->value;
 
         foreach ($b as $key => $value)
@@ -206,25 +216,31 @@ final class StdArray extends \SplType
                     if (!in_array($value, $a))
                         $a[] = $value;
                 }
-                elseif (is_array($value) && is_array($a[$key]))
-                    $a[$key] = \Poirot\Std\array_merge($a[$key], $value);
+                elseif (is_array($value) && is_array($a[$key])) {
+                    $m = new StdArray($a[$key]);
+                    $a[$key] = $m->merge($value)->value;
+                }
                 else
                     $a[$key] = $value;
             } else
                 $a[$key] = $value;
 
-        return new static($a);
+        return new StdArray($a);
     }
 
     /**
      * Merge two arrays together, reserve previous values
      *
      * @param  array|StdArray $b
-     * @return array
+     * @return StdArray
      */
     function mergeRecursive($b)
     {
-        $b = (array) $b;
+        if ($b instanceof StdArray)
+            $b = $b->value;
+        else
+            $b = (array) $b;
+
         $a = $this->value;
 
         foreach ($b as $key => $value)
@@ -233,11 +249,13 @@ final class StdArray extends \SplType
                     if (!in_array($value, $a))
                         $a[] = $value;
                 }
-                elseif (is_array($value) && is_array($a[$key]))
-                    $a[$key] = \Poirot\Std\array_merge_recursive($a[$key], $value);
+                elseif (is_array($value) && is_array($a[$key]))  {
+                    $m = new StdArray($a[$key]);
+                    $a[$key] = $m->merge($value)->value;
+                }
                 else {
                     $cv = $a[$key];
-                    $a[$key] = [];
+                    $a[$key] = array();
                     $pa = &$a[$key];
                     array_push($pa, $cv);
                     array_push($pa, $value);
@@ -245,7 +263,7 @@ final class StdArray extends \SplType
             } else
                 $a[$key] = $value;
 
-        return new static($a);
+        return new StdArray($a);
     }
 
     /**
@@ -353,6 +371,12 @@ final class StdArray extends \SplType
      */
     public function getIterator()
     {
-        return (new \ArrayObject($this->value))->getIterator();
+        // DO_LEAST_PHPVER_SUPPORT
+        if (version_compare(phpversion(), '5.4.0') < 0)
+            ## php version not support yield
+            return new ArrayIterator($this->value);
+        
+        foreach ($this->value as $k => $v)
+            yield $k => $v;
     }
 }

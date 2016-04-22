@@ -6,7 +6,8 @@ if (!class_exists('\SplType')) {
     class_alias('\Poirot\Std\Type\AbstractNSplType', '\SplType');
 }
 
-final class StdTravers extends \SplType
+final class StdTravers 
+    extends \SplType
     implements \IteratorAggregate
 {
     // TODO As of PHP 5.6 we can use math expressions in PHP constants
@@ -54,7 +55,7 @@ final class StdTravers extends \SplType
      */
     function toArray(\Closure $filter = null, $recursive = true)
     {
-        $arr = [];
+        $arr = array();
         foreach($this->getIterator() as $key => $val) {
             $flag = false;
             if ($filter !== null)
@@ -64,9 +65,9 @@ final class StdTravers extends \SplType
 
             if ($recursive && $val instanceof \Traversable)
                 ## deep convert
-                $val = (new static($val))->toArray($filter);
+                $val = (new StdTravers($val))->toArray($filter);
 
-            if (!\Poirot\Std\isString($key))
+            if (!\Poirot\Std\isStringify($key))
                 ## some poirot Traversable is able to handle objects as key
                 $key = \Poirot\Std\flatten($key);
 
@@ -89,7 +90,6 @@ final class StdTravers extends \SplType
      */
     public function getIterator()
     {
-        foreach($this->value as $key => $val)
-            yield $key => $val;
+        return $this->value;
     }
 }
