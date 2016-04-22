@@ -40,9 +40,8 @@ final class StdString
     {
         $key = (string) $this;
 
-        $pattern     = ['#(?<=(?:[A-Z]))([A-Z]+)([A-Z][A-z])#', '#(?<=(?:[a-z0-9]))([A-Z])#'];
-        $replacement = ['\1_\2', '_\1'];
+        $output = strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], '$1_$2', $key));
 
-        return new StdString(strtolower(preg_replace($pattern, $replacement, $key)));
+        return new StdString($output);
     }
 }
