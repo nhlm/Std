@@ -82,6 +82,8 @@ abstract class aDataOptions
             $x[] = 'isFulfilled';
             $x[] = 'isEmpty';
             $x[] = 'getIterator';
+
+            $this->_c_is_process_ignored_notation = true;
         }
 
         return $this->_t_options__ignored;
@@ -352,7 +354,12 @@ abstract class aDataOptions
                     $propertyName = substr($method->getName(), strlen($prefix));
                     $propertyName = $this->_normalize($propertyName, 'external');
 
-                    $property = new PropObject($propertyName);
+                    ## preserve previous stat for readable or writable
+                    if (array_key_exists($propertyName, $props))
+                        $property = $props[$propertyName];
+                    else
+                        $property = new PropObject($propertyName);
+                    
                     ## mark readable/writable for property
                     ($prefix == 'set')
                         ? $property->setWritable()
@@ -370,9 +377,11 @@ abstract class aDataOptions
     // DO_LEAST_PHPVER_SUPPORT v5.5 yield
     protected function _gen_getProperties()
     {
+        _gen_getProperties_1:
+
         if ($this->_c__properties !== null) {
             foreach ($this->_c__properties as $name => $property)
-                yield $property;
+                yield $name => $property;
 
             return;
         }
@@ -394,7 +403,12 @@ abstract class aDataOptions
                     $propertyName = substr($method->getName(), strlen($prefix));
                     $propertyName = $this->_normalize($propertyName, 'external');
 
-                    $property = new PropObject($propertyName);
+                    ## preserve previous stat for readable or writable
+                    if (array_key_exists($propertyName, $props))
+                        $property = $props[$propertyName];
+                    else
+                        $property = new PropObject($propertyName);
+
                     ## mark readable/writable for property
                     ($prefix == 'set')
                         ? $property->setWritable()
@@ -402,14 +416,12 @@ abstract class aDataOptions
                     ;
 
                     $props[$propertyName] = $property;
-
-
-                    yield $property;
                 }
             }
         }
 
         $this->_c__properties = $props;
+        goto _gen_getProperties_1;
     }
 
     protected function _getGetterIfHas($key, $prefix = 'get')

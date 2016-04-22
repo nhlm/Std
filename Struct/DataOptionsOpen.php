@@ -154,17 +154,20 @@ class DataOptionsOpen
 
     protected function _fix_getProperties()
     {
-        $methodProps  = parent::_getProperties();
+        $methodProps  = parent::_fix_getProperties();
 
         $props = array();
 
         // Methods as Options:
-        foreach($methodProps as $p)
-            $props[$p->getKey()] = $p;
+        foreach($methodProps as $k => $p)
+            $props[$k] = $p;
 
         // Property Open Options:
         foreach(array_keys($this->properties) as $propertyName)
         {
+            if (in_array($propertyName, $props))
+                continue;
+
             foreach(array('set', 'get', 'is') as $prefix) {
                 # check for ignorant
                 $method = $prefix . $this->_normalize($propertyName, 'internal');
@@ -186,11 +189,22 @@ class DataOptionsOpen
 
     protected function _gen_getProperties()
     {
-        yield parent::_getProperties();
+        // DO_LEAST_PHPVER_SUPPORT v7.0 yield from
+        $yielded = array();
+        foreach (parent::_gen_getProperties() as $k => $p) {
+            $yielded[] = $k;
+            yield $k => $p;
+        }
 
         // Property Open Options:
+
         foreach(array_keys($this->properties) as $propertyName)
         {
+            if (in_array($propertyName, $yielded))
+                continue;
+
+            $property = null;
+
             foreach(array('set', 'get', 'is') as $prefix) {
                 # check for ignorant
                 $method = $prefix . $this->_normalize($propertyName, 'internal');
@@ -204,9 +218,10 @@ class DataOptionsOpen
                     ? $property->setWritable()
                     : $property->setReadable()
                 ;
-
-                yield $property;
             }
+
+            if ($property !== null)
+                yield $property->getKey() => $property;
         }
     }
 }
