@@ -48,7 +48,7 @@ class FactoryEnvironment
             foreach ($register as $name => $instanceAliases) {
                 if (!is_array($instanceAliases))
                     ## ['name' => EnvBase|'To\ClassName'
-                    $instanceAliases = [$instanceAliases];
+                    $instanceAliases = array($instanceAliases);
 
                 $envInstance = array_shift($instanceAliases);
                 // remaining items is aliases
@@ -61,7 +61,7 @@ class FactoryEnvironment
             foreach ($aliases as $nameOrAlias => $alias) {
                 if (!is_array($alias))
                     ## ['name' => EnvBase|'To\ClassName'
-                    $alias = [$alias];
+                    $alias = array($alias);
 
                 self::setAlias($nameOrAlias, $alias);
             }
@@ -145,7 +145,7 @@ class FactoryEnvironment
     static function setAlias($name, $alias)
     {
         if (!is_array($alias))
-            $alias = [$alias];
+            $alias = array($alias);
 
         foreach($alias as $a)
             self::$_aliases[(string) $a] = (string) $name;
