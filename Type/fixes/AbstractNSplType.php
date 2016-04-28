@@ -1,9 +1,6 @@
 <?php
 namespace Poirot\Std\Type;
 
-if (class_exists('Poirot\Std\Type\AbstractNSplType'))
-    return;
-
 abstract class AbstractNSplType
 {
     const __default = null;

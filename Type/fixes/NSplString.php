@@ -1,7 +1,8 @@
 <?php
 namespace Poirot\Std\Type;
 
-require_once __DIR__.'/AbstractNSplType.php';
+!class_exists('Poirot\Std\Type\AbstractNSplType')
+&& require_once __DIR__.'/AbstractNSplType.php';
 
 /**
  * This class used as alias of \SplString if it not exists

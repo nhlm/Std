@@ -1,6 +1,10 @@
 <?php
 namespace Poirot\Std\Traits;
 
+/**
+ * Clone Objects in deep
+ * 
+ */
 trait tClone
 {
     function __clone()

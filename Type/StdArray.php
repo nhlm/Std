@@ -4,8 +4,11 @@ namespace Poirot\Std\Type;
 use ArrayIterator;
 use Traversable;
 
-if (!class_exists('\SplType')) {
-    require_once __DIR__.'/fixes/AbstractNSplType.php';
+if (!class_exists('\SplType'))
+{
+    !class_exists('Poirot\Std\Type\AbstractNSplType')
+    && require_once __DIR__.'/fixes/AbstractNSplType.php';
+
     class_alias('\Poirot\Std\Type\AbstractNSplType', '\SplType');
 }
 
@@ -180,9 +183,11 @@ final class StdArray extends \SplType
 
             if ($flag) continue;
 
-            if ($recursive && is_array($val))
+            if ($recursive && is_array($val)) {
                 ## recursively walk
-                $val = (new static($val))->walk($filter);
+                $stdarr = new StdArray($val);
+                $val    = $stdarr->walk($filter);
+            }
 
             $arr[(string) $key] = $val;
         }
@@ -388,6 +393,6 @@ final class StdArray extends \SplType
     // DO_LEAST_PHPVER_SUPPORT v5.5 yield
     protected function _fix__getIterator()
     {
-        new ArrayIterator($this->value);
+        return new ArrayIterator($this->value);
     }
 }

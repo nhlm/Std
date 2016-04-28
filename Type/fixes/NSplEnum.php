@@ -3,7 +3,8 @@ namespace Poirot\Std\Type;
 
 use ReflectionClass;
 
-require_once __DIR__.'/AbstractNSplType.php';
+!class_exists('Poirot\Std\Type\AbstractNSplType')
+&& require_once __DIR__.'/AbstractNSplType.php';
 
 class NSplEnum 
     extends AbstractNSplType
