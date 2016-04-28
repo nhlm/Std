@@ -31,7 +31,7 @@ class FactoryEnvironment
      * Build Object With Provided Options
      * Options: [
      *   'register'   => ['name' => EnvBase|'To\ClassName', 'name' => [EnvBase|'To\ClassName', 'alias', $alias2, ..] ]
-     *   'alias_name' => ['nameOrAlias', 'alias', 'alias2', ..]
+     *   'alias_name' => ['nameOrAlias' => alias | ['alias', 'alias2', ..] ]
      *
      * @param array $options        Associated Array
      * @param bool  $throwException Throw Exception On Wrong Option
