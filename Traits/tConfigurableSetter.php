@@ -54,7 +54,7 @@ trait tConfigurableSetter
             $setter = 'set' . \Poirot\Std\cast($key)->camelCase();
             if (method_exists($this, $setter)) {
                 // check for methods
-                call_user_func([$this, $setter], $val);
+                call_user_func(array($this, $setter), $val);
             } elseif($throwException) {
                 throw new \InvalidArgumentException(
                     sprintf(

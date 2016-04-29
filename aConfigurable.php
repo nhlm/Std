@@ -13,7 +13,7 @@ abstract class aConfigurable
      */
     function __construct(array $setter = null)
     {
-        if ($setter !== null)
+        if (!empty($setter) && $setter !== null)
             $this->with($setter);
     }
     
