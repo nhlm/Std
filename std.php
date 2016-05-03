@@ -18,6 +18,9 @@ namespace Poirot\Std
      * Cast Given Value Into SplTypes
      * SplTypes Contains Some Utility For That Specific Type
      *
+     * ! when you want to force cast to string is necessary to
+     *   use type casting cast((string) 10)
+     *  
      * @param mixed $type
      *
      * @throws \UnexpectedValueException

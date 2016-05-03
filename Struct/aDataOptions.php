@@ -454,12 +454,12 @@ abstract class aDataOptions
 
         if (!isset($this->__normalizer['internal']))
             $this->__normalizer['internal'] = function($key) {
-                return Std\cast($key)->camelCase();
+                return Std\cast((string) $key)->camelCase();
             };
 
         if (!isset($this->__normalizer['external']))
             $this->__normalizer['external'] = function($key) {
-                return strtolower(Std\cast($key)->under_score());
+                return strtolower(Std\cast((string) $key)->under_score());
             };
 
 
