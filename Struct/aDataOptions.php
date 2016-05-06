@@ -97,9 +97,9 @@ abstract class aDataOptions
      * <b>Traversable</b>
      * @since 5.0.0
      */
-    public function getIterator()
+    final public function getIterator()
     {
-        // DO_LEAST_PHPVER_SUPPORT
+        // DO_LEAST_PHPVER_SUPPORT 5.5 yield
         if (version_compare(phpversion(), '5.5.0') < 0)
             ## php version not support yield
             return $this->_fix__getIterator();
