@@ -3,10 +3,10 @@ namespace Poirot\Std;
 
 use Poirot\Std\Traits\tMixin;
 
-// DO_LEAST_PHPVER_SUPPORT
+// DO_LEAST_PHPVER_SUPPORT 5.4 closure bindto
 if (version_compare(phpversion(), '5.4.0') < 0) {
-    ## php version not support $this(bind, bindTo) on Closures
-    throw new \Exception(sprintf('Mixin need php >=5.4.0 you have (%s).', phpversion()));
+    require_once __DIR__.'/fixes/Mixin.php';
+    return;
 }
 
 /**
