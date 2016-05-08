@@ -25,9 +25,20 @@ interface ipConfigurable
      *
      *
      * @param array|mixed $optionsResource
+     * @param array       $_
+     *        usually pass as argument into ::with if self instanced
      *
      * @throws \InvalidArgumentException if resource not supported
      * @return array
      */
-    static function withOf($optionsResource);
+    static function parseWith($optionsResource, array $_ = null);
+
+    /**
+     * Is Configurable With Given Resource
+     * 
+     * @param mixed $optionsResource
+     * 
+     * @return boolean
+     */
+    static function isConfigurableWith($optionsResource);
 }

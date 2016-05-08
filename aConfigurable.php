@@ -39,18 +39,35 @@ abstract class aConfigurable
      *
      *
      * @param array|mixed $optionsResource
-     *
+     * @param array       $_
+     *        usually pass as argument into ::with if self instanced
+     * 
      * @throws \InvalidArgumentException if resource not supported
      * @return array
      */
-    static function withOf($optionsResource)
+    static function parseWith($optionsResource, array $_ = null)
     {
-        if (!is_array($optionsResource))
+        if (!static::isConfigurableWith($optionsResource))
             throw new \InvalidArgumentException(sprintf(
-                'Resource must be an array, given: (%s).'
+                'Invalid Resource provided; given: (%s).'
                 , \Poirot\Std\flatten($optionsResource)
             ));
+        
+        // ..
+        
 
         return $optionsResource;
+    }
+
+    /**
+     * Is Configurable With Given Resource
+     *
+     * @param mixed $optionsResource
+     *
+     * @return boolean
+     */
+    static function isConfigurableWith($optionsResource)
+    {
+        return is_array($optionsResource);
     }
 }
