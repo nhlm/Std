@@ -23,6 +23,8 @@ interface ipConfigurable
      *     Configurable->with(Configurable::withOf(path\to\file.conf))
      *   [code]
      *
+     * !! With this The classes that extend this abstract have to
+     *    implement desired parse methods
      *
      * @param array|mixed $optionsResource
      * @param array       $_

@@ -15,6 +15,21 @@ namespace Poirot\Std
     use Poirot\Std\Type\StdTravers;
 
     /**
+     * Return Unmodified Argument
+     * 
+     * usage:
+     * 
+     *    _(new Classes())->callMethods();
+     *
+     * @param mixed $var
+     * @return mixed
+     */
+    function _($var)
+    {
+        return $var;
+    }
+
+    /**
      * Cast Given Value Into SplTypes
      * SplTypes Contains Some Utility For That Specific Type
      *
