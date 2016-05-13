@@ -6,13 +6,14 @@ interface ipConfigurable
     /**
      * Build Object With Provided Options
      *
-     * @param array $options        Associated Array
-     * @param bool  $throwException Throw Exception On Wrong Option
+     * @param array|\Traversable $options        Associated Array
+     * @param bool               $throwException Throw Exception On Wrong Option
      *
-     * @throws \Exception
      * @return $this
+     * @throws \Exception
+     * @throws \InvalidArgumentException
      */
-    function with(array $options, $throwException = false);
+    function with($options, $throwException = false);
 
     /**
      * Load Build Options From Given Resource

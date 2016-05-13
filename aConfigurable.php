@@ -9,24 +9,25 @@ abstract class aConfigurable
     /**
      * Construct
      *
-     * @param array $setter
+     * @param array|\Traversable $options
      */
-    function __construct(array $setter = null)
+    function __construct($options = null)
     {
-        if (!empty($setter) && $setter !== null)
-            $this->with($setter);
+        if (!empty($options) && $options !== null)
+            $this->with($options);
     }
-    
+
     /**
      * Build Object With Provided Options
      *
-     * @param array $options Associated Array
-     * @param bool $throwException Throw Exception On Wrong Option
+     * @param array|\Traversable $options        Associated Array
+     * @param bool               $throwException Throw Exception On Wrong Option
      *
-     * @throws \Exception
      * @return $this
+     * @throws \Exception
+     * @throws \InvalidArgumentException
      */
-    abstract function with(array $options, $throwException = false);
+    abstract function with($options, $throwException = false);
 
     /**
      * Load Build Options From Given Resource
