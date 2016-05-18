@@ -77,6 +77,9 @@ class ConfigurableSetter
         $remained = array();
         foreach($options as $key => $val) {
             $setter = 'set' . \Poirot\Std\cast($key)->camelCase();
+            // It can be public or protected methods
+            // usually protected methods can be used as helper 
+            // to build class with options
             if (method_exists($this, $setter)) {
                 // check for methods
                 call_user_func(array($this, $setter), $val);

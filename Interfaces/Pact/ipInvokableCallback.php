@@ -1,15 +1,20 @@
 <?php
 namespace Poirot\Std\Interfaces\Pact;
 
-interface ipInvokableCallback extends ipInvokable
+/**
+ * Use Case:
+ * Some times we have to resolve arguments to 
+ * callable bind with this invokable instead of 
+ * __invoke method itself.
+ * 
+ */
+interface ipInvokableCallback 
+    extends ipInvokable
 {
     /**
      * Set Callable Closure For __invoke
      *
-     * - callable can have one optional argument. exp.func(arg)
-     * - callable bind to this class as a closure, so with
-     *   $this on function you can access methods/vars on this
-     *   class
+     * - closure callable Must bind to $this
      *
      * @param callable $callable
      *

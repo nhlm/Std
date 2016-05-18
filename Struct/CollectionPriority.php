@@ -29,7 +29,7 @@ class CollectionPriority
     function insert($data, $priority = 0)
     {
         if (!is_array($priority))
-            $priority = [$priority, $this->__sdec--];
+            $priority = array($priority, $this->__sdec--);
 
         $this->__mapped_items[] = array(
             'priority' => $priority,
