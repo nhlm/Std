@@ -32,8 +32,11 @@ namespace Poirot\Std\Invokable
      * 
      * @return \Closure
      */
-    function resolveArguments(/*callable*/ $callable, $parameters = array())
+    function resolveArguments(/*callable*/ $callable, $parameters)
     {
+        if ($parameters instanceof \Traversable)
+            $parameters = \Poirot\Std\cast($parameters)->toArray();
+        
         $matchedArguments = array();
         
         $reflection = reflectCallable($callable);
