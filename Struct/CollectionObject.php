@@ -132,7 +132,6 @@ class CollectionObject implements iCollectionObject, \Iterator
             return false;
 
         unset($this->_objs[$hash]);
-
         return true;
     }
 
@@ -178,7 +177,7 @@ class CollectionObject implements iCollectionObject, \Iterator
         # ETags is unique and if present only search for etag match
         if (isset($data['etag']) && $hash = $data['etag'])
             if ($this->has($hash)) {
-                yield array($hash => $this->_objs[$hash]['object']);
+                yield $hash => $this->_objs[$hash]['object'];
                 return;
             }
 
@@ -187,7 +186,7 @@ class CollectionObject implements iCollectionObject, \Iterator
         foreach($this->_objs as $hash => $obAr) {
             $obData = $obAr['data'];
             if ($data == array_intersect_assoc($obData, $data))
-                yield array($hash => $this->_objs[$hash]['object']);
+                yield $hash => $this->_objs[$hash]['object'];
         }
     }
 
