@@ -332,4 +332,10 @@ class CollectionObject implements iCollectionObject, \Iterator
     {
         return count($this->_objs);
     }
+    
+    
+    // ...
+    
+    /** Clone this object is really meaningless */
+    private function __clone() { }
 }
