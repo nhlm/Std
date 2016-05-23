@@ -196,6 +196,7 @@ namespace Poirot\Std\Lexer
 
             elseif ($Token === '\\') {
                 // Consider next character as Literal
+                // localhost\::port
                 $nextChar = $currentPos += 1;
                 $levelParts[$level][]   = array('_literal_' => $string[$nextChar]);
             }
@@ -256,7 +257,7 @@ namespace Poirot\Std\Lexer
                     if (isset($parsed[$definition_value])) {
                         $regex .= '(' . $groupName . $parsed[$definition_value] . ')';
                     } else{
-                        $regex .= '(' . $groupName . '[^]+)';
+                        $regex .= '(' . $groupName . '[^.]+)';
                     }
 
                     break;
