@@ -290,9 +290,6 @@ namespace Poirot\Std\Lexer
 
 
         $return    = '';
-        $skip      = true;
-        $skippable = false;
-
         // [0 => ['_literal_' => 'localhost'], 1=>['_optional' => ..] ..]
         foreach ($parts as $parsed) {
             $definition_name  = key($parsed);
@@ -307,11 +304,8 @@ namespace Poirot\Std\Lexer
                     break;
 
                 case '_parameter_':
-                    $skippable = true;
-
                     if (!isset($params[$definition_value])) {
-                        if ($isOptional)
-                            return '';
+                        if ($isOptional)  return '';
 
                         throw new \InvalidArgumentException(sprintf(
                             'Missing parameter (%s).'
@@ -323,19 +317,13 @@ namespace Poirot\Std\Lexer
                     break;
 
                 case '_optional_':
-                    $skippable    = true;
-                    $optionalPart = $this->_buildHost($definition_value, $params, true);
-
-                    if ($optionalPart !== '') {
+                    $optionalPart = buildStringFromParsed($definition_value, $params, true);
+                    if ($optionalPart !== '')
                         $return .= $optionalPart;
-                        $skip  = false;
-                    }
+
                     break;
             }
         }
-
-        if ($isOptional && $skippable && $skip)
-            return '';
 
         return $return;
     }
