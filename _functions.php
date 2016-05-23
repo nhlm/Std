@@ -125,6 +125,152 @@ namespace Poirot\Std\Invokable
     }
 }
 
+namespace Poirot\Std\Lexer
+{
+    /**
+     * Tokenize Parse String Definition Into Parts
+     * 
+     * String in form of:
+     *  '[:subdomain{static}.]localhost.:tld{\s+}'
+     *  : variable {delimiter}
+     *    delimiter .. localhost\.(?P<tld>\s+)
+     *  [optional]
+     * 
+     * TODO: optional in optional; 
+     * TODO: skip token \[token] add slash
+     * 
+     * @param string $string 
+     * @return array
+     */
+    function parseDefinition($string)
+    {
+        $TOKENS = preg_quote('\\.:{\[\]');
+
+        $currentPos = 0;
+        $length     = strlen($string);
+
+        $parts      = array();
+        $levelParts = array(&$parts);
+        $level      = 0;
+
+        while ($currentPos < $length)
+        {
+            ## the tokens are .:{[]
+            preg_match("(\G(?P<_literal_>[A-Za-z0-9]*)(?P<_token_>[$TOKENS]|$))"
+                , $string
+                , $matches
+                , 0
+                , $currentPos
+            );
+
+            if (empty($matches)) break;
+
+            $currentPos += strlen($matches[0]);
+
+            if (!empty($matches['_literal_']))
+                $levelParts[$level][] = array('_literal_' => $matches['_literal_']);
+
+            # Deal With Token:
+            if (!isset($matches['_token_']))
+                continue;
+
+            $Token = $matches['_token_'];
+            if ($Token === ':') {
+                $pmatch = preg_match("(\G(?P<_name_>[^$TOKENS]+)(?:{(?P<_delimiter_>[^}]+)})?:?)"
+                    , $string
+                    , $matches
+                    , 0
+                    , $currentPos
+                );
+                if (!$pmatch)
+                    throw new \RuntimeException('Found empty parameter name');
+
+                $parameter = $matches['_name_'];
+                $val       = array('_parameter_' => $parameter);
+                if (isset($matches['_delimiter_']))
+                    $val[$parameter] = $matches['_delimiter_'];
+
+                $levelParts[$level][] = $val;
+                $currentPos += strlen($matches[0]);
+            }
+
+            elseif ($Token === '\\') {
+                // Consider next character as Literal
+                $nextChar = $currentPos += 1;
+                $levelParts[$level][]   = array('_literal_' => $string[$nextChar]);
+            }
+
+            elseif ($Token === '[') {
+                $va = array();
+                $levelParts[$level][]   = array('_optional_' => &$va);
+
+                $level++;
+                $levelParts[$level] = &$va;
+            }
+
+            elseif ($Token === ']') {
+                unset($levelParts[$level]);
+                $level--;
+
+                if ($level < 0)
+                    throw new \RuntimeException('Found closing bracket without matching opening bracket');
+            } else
+                // Recognized unused token return immanently
+                $levelParts[$level][]   = array('_token_' => $Token);
+
+        } // end while
+
+        if ($level > 0)
+            throw new \RuntimeException('Found unbalanced brackets');
+
+        return $parts;
+    }
+
+    /**
+     * Build the matching regex from parsed parts.
+     *
+     * @param array $parts
+     *
+     * @return string
+     */
+    function buildRegexFromParsed(array $parts)
+    {
+        $regex = '';
+
+        // [0 => ['_literal_' => 'localhost'], 1=>['_optional' => ..] ..]
+        foreach ($parts as $parsed) {
+            $definition_name  = key($parsed);
+            $definition_value = $parsed[$definition_name];
+            // $parsed can also have extra parsed data options
+            // _parameter_ String(3) => tld \
+            // tld String(4)         => .com
+            switch ($definition_name) {
+                case '_token_':
+                case '_literal_':
+                    $regex .= preg_quote($definition_value);
+                    break;
+
+                case '_parameter_':
+                    $groupName = '?P<' . $definition_value . '>';
+
+                    if (isset($parsed[$definition_value])) {
+                        $regex .= '(' . $groupName . $parsed[$definition_value] . ')';
+                    } else{
+                        $regex .= '(' . $groupName . '[^]+)';
+                    }
+
+                    break;
+
+                case '_optional_':
+                    $regex .= '(?:' . buildRegexFromParsed($definition_value) . ')?';
+                    break;
+            }
+        }
+
+        return $regex;
+    }
+}
+
 namespace Poirot\Std
 {
     use Closure;
