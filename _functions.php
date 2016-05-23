@@ -139,15 +139,16 @@ namespace Poirot\Std\Lexer
      * TODO: optional in optional; 
      * TODO: skip token \[token] add slash
      * 
-     * @param string $string 
+     * @param string $criteria
+     *
      * @return array
      */
-    function parseDefinition($string)
+    function parseCriteria($criteria)
     {
         $TOKENS = preg_quote('\\.:{\[\]');
 
         $currentPos = 0;
-        $length     = strlen($string);
+        $length     = strlen($criteria);
 
         $parts      = array();
         $levelParts = array(&$parts);
@@ -157,7 +158,7 @@ namespace Poirot\Std\Lexer
         {
             ## the tokens are .:{[]
             preg_match("(\G(?P<_literal_>[A-Za-z0-9]*)(?P<_token_>[$TOKENS]|$))"
-                , $string
+                , $criteria
                 , $matches
                 , 0
                 , $currentPos
@@ -177,7 +178,7 @@ namespace Poirot\Std\Lexer
             $Token = $matches['_token_'];
             if ($Token === ':') {
                 $pmatch = preg_match("(\G(?P<_name_>[^$TOKENS]+)(?:{(?P<_delimiter_>[^}]+)})?:?)"
-                    , $string
+                    , $criteria
                     , $matches
                     , 0
                     , $currentPos
@@ -198,7 +199,7 @@ namespace Poirot\Std\Lexer
                 // Consider next character as Literal
                 // localhost\::port
                 $nextChar = $currentPos += 1;
-                $levelParts[$level][]   = array('_literal_' => $string[$nextChar]);
+                $levelParts[$level][]   = array('_literal_' => $criteria[$nextChar]);
             }
 
             elseif ($Token === '[') {
@@ -270,6 +271,73 @@ namespace Poirot\Std\Lexer
         }
 
         return $regex;
+    }
+
+    /**
+     * Build String Representation From Given Parts and Params
+     *
+     * @param array $parts
+     * @param array $params
+     *
+     * @return string
+     */
+    function buildStringFromParsed(array $parts, array $params = array())
+    {
+        // regard to recursive function call
+        $isOptional = false;
+        if ($args = func_get_args() && isset($args[3]))
+            $isOptional = $args[3];
+
+
+        $return    = '';
+        $skip      = true;
+        $skippable = false;
+
+        // [0 => ['_literal_' => 'localhost'], 1=>['_optional' => ..] ..]
+        foreach ($parts as $parsed) {
+            $definition_name  = key($parsed);
+            $definition_value = $parsed[$definition_name];
+            // $parsed can also have extra parsed data options
+            // _parameter_ String(3) => tld \
+            // tld String(4)         => .com
+            switch ($definition_name)
+            {
+                case '_literal_':
+                    $return .= $definition_value;
+                    break;
+
+                case '_parameter_':
+                    $skippable = true;
+
+                    if (!isset($params[$definition_value])) {
+                        if ($isOptional)
+                            return '';
+
+                        throw new \InvalidArgumentException(sprintf(
+                            'Missing parameter (%s).'
+                            , $definition_value
+                        ));
+                    }
+
+                    $return .= $params[$definition_value];
+                    break;
+
+                case '_optional_':
+                    $skippable    = true;
+                    $optionalPart = $this->_buildHost($definition_value, $params, true);
+
+                    if ($optionalPart !== '') {
+                        $return .= $optionalPart;
+                        $skip  = false;
+                    }
+                    break;
+            }
+        }
+
+        if ($isOptional && $skippable && $skip)
+            return '';
+
+        return $return;
     }
 }
 
