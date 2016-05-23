@@ -255,6 +255,7 @@ namespace Poirot\Std\Lexer
                     $groupName = '?P<' . $definition_value . '>';
 
                     if (isset($parsed[$definition_value])) {
+                        // Delimiter: localhost:port{\d+}
                         $regex .= '(' . $groupName . $parsed[$definition_value] . ')';
                     } else{
                         $regex .= '(' . $groupName . '[^.]+)';
