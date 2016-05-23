@@ -276,13 +276,23 @@ namespace Poirot\Std\Lexer
     /**
      * Build String Representation From Given Parts and Params
      *
-     * @param array $parts
-     * @param array $params
+     * @param array              $parts
+     * @param array|\Traversable $params
      *
      * @return string
      */
-    function buildStringFromParsed(array $parts, array $params = array())
+    function buildStringFromParsed(array $parts, $params = array())
     {
+        if ($params instanceof \Traversable)
+            $params = \Poirot\Std\cast($params)->toArray();
+        
+        if (!is_array($params))
+            throw new \InvalidArgumentException(sprintf(
+                'Parameters must be an array or Traversable; given: (%s).'
+                , \Poirot\Std\flatten($params)
+            ));
+        
+        
         // regard to recursive function call
         $isOptional = false;
         if ($args = func_get_args() && isset($args[3]))
