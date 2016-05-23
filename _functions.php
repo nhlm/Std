@@ -157,7 +157,7 @@ namespace Poirot\Std\Lexer
         while ($currentPos < $length)
         {
             ## the tokens are .:{[]
-            preg_match("(\G(?P<_literal_>[A-Za-z0-9]*)(?P<_token_>[$TOKENS]|$))"
+            preg_match("(\G(?P<_literal_>[/A-Za-z0-9]*)(?P<_token_>[$TOKENS]|$))"
                 , $criteria
                 , $matches
                 , 0
@@ -172,7 +172,7 @@ namespace Poirot\Std\Lexer
                 $levelParts[$level][] = array('_literal_' => $matches['_literal_']);
 
             # Deal With Token:
-            if (!isset($matches['_token_']))
+            if (!isset($matches['_token_']) || $matches['_token_'] == '')
                 continue;
 
             $Token = $matches['_token_'];
