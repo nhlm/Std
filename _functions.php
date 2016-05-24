@@ -295,10 +295,11 @@ namespace Poirot\Std\Lexer
         
         // regard to recursive function call
         $isOptional = false;
-        if ($args = func_get_args() && isset($args[3]))
-            $isOptional = $args[3];
+        $args = func_get_args();
+        if ($args && isset($args[2]))
+            $isOptional = $args[2];
 
-
+        
         $return    = '';
         // [0 => ['_literal_' => 'localhost'], 1=>['_optional' => ..] ..]
         foreach ($parts as $parsed) {
