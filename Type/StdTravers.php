@@ -63,9 +63,11 @@ final class StdTravers
 
             if ($flag) continue;
 
-            if ($recursive && $val instanceof \Traversable)
+            if ($recursive && $val instanceof \Traversable) {
                 ## deep convert
-                $val = (new StdTravers($val))->toArray($filter);
+                $stdTravers = new StdTravers($val);
+                $val = $stdTravers->toArray($filter);
+            }
 
             if (!\Poirot\Std\isStringify($key))
                 ## some poirot Traversable is able to handle objects as key

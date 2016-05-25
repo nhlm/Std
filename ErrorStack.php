@@ -267,11 +267,17 @@ final class ErrorStack
     {
         $Stack = & self::$_STACK[self::getStackNum()-1];
 
-        if (! $errno instanceof \Exception)
-            ## handle errors
-            $errno = new ErrorException(
-                $errstr, $errno, 1, $errfile, $errline
-            );
+        if (! $errno instanceof \Exception) {
+            if (interface_exists('Throwable') && $errno instanceof \Throwable)
+                VOID;
+            else {
+                ## handle errors
+                $errno = new ErrorException(
+                    $errstr, $errno, 1, $errfile, $errline
+                );
+            }
+        }
+
 
         $Stack['has_error'] = $errno;
 
