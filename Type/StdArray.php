@@ -173,7 +173,7 @@ final class StdArray extends \SplType
      *
      * @return StdArray
      */
-    function walk(\Closure $filter, $recursive = true)
+    function withWalk(\Closure $filter, $recursive = true)
     {
         $arr = array();
         foreach($this->value as $key => $val) {
@@ -186,7 +186,7 @@ final class StdArray extends \SplType
             if ($recursive && is_array($val)) {
                 ## recursively walk
                 $stdarr = new StdArray($val);
-                $val    = $stdarr->walk($filter);
+                $val    = $stdarr->withWalk($filter);
             }
 
             $arr[(string) $key] = $val;
@@ -206,7 +206,7 @@ final class StdArray extends \SplType
      * @param  array|StdArray $b
      * @return StdArray
      */
-    function merge($b)
+    function withMerge($b)
     {
         if ($b instanceof StdArray)
             $b = $b->value;
@@ -223,7 +223,7 @@ final class StdArray extends \SplType
                 }
                 elseif (is_array($value) && is_array($a[$key])) {
                     $m = new StdArray($a[$key]);
-                    $a[$key] = $m->merge($value)->value;
+                    $a[$key] = $m->withMerge($value)->value;
                 }
                 else
                     $a[$key] = $value;
@@ -239,7 +239,7 @@ final class StdArray extends \SplType
      * @param  array|StdArray $b
      * @return StdArray
      */
-    function mergeRecursive($b)
+    function withMergeRecursive($b)
     {
         if ($b instanceof StdArray)
             $b = $b->value;
@@ -256,7 +256,7 @@ final class StdArray extends \SplType
                 }
                 elseif (is_array($value) && is_array($a[$key]))  {
                     $m = new StdArray($a[$key]);
-                    $a[$key] = $m->merge($value)->value;
+                    $a[$key] = $m->withMerge($value)->value;
                 }
                 else {
                     $cv = $a[$key];
