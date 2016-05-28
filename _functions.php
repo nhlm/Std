@@ -439,7 +439,8 @@ namespace Poirot\Std
             $value = 'Array: ['.implode(', ', $value).']';
         } elseif (is_scalar($value)) {
             $value = sprintf('%s(%s)',gettype($value), $value);
-        }
+        } elseif ($value === null)
+            $value = 'NULL';
 
         return $value;
     }
