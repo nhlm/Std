@@ -291,8 +291,7 @@ final class ErrorStack
         try {
             ## call user error handler callable
             ## exception will passed as errno on exception catch
-            call_user_func($Stack['callable'], $errno, $errstr, $errfile, $errline);
-            
+            call_user_func($Stack['callable'], $errno);
         } catch (\Exception $e) {
             ## during handling an error if any exception happen it must handle with parent handler
             if (self::getStackNum() == $currLevel)
