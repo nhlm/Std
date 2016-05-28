@@ -43,7 +43,8 @@ namespace Poirot\Std\Invokable
         foreach ($reflection->getParameters() as $argument)
         {
             /** @var \ReflectionParameter $argument */
-            
+            $argValue = $notSet = uniqid(); // maybe null value is default
+
             if ($argument->isDefaultValueAvailable())
                 $argValue = $argument->getDefaultValue();
 
@@ -55,7 +56,7 @@ namespace Poirot\Std\Invokable
                 unset($parameters[$argName]);
             }
             
-            if (!isset($argValue))
+            if ($argValue === $notSet)
                 throw new \InvalidArgumentException(sprintf(
                     'Callable (%s) has no match found on parameter (%s) from (%s) list.'
                     , $reflection->getName(), $argument->getName(), \Poirot\Std\flatten($parameters)
