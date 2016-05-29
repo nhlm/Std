@@ -69,6 +69,6 @@ abstract class aConfigurable
      */
     static function isConfigurableWith($optionsResource)
     {
-        return is_array($optionsResource);
+        return is_array($optionsResource) || $optionsResource instanceof \Traversable;
     }
 }
