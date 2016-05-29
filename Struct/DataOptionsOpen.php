@@ -80,15 +80,15 @@ class DataOptionsOpen
     {
         $key = $this->_normalize($key, 'external');
 
-        if ($setter = $this->_getSetterIfHas($key))
-            ## using setter method
-            $this->$setter($value);
-
         if (in_array('set'.$this->_normalize($key, 'internal'), $this->doWhichMethodIgnored()))
             throw new \Exception(sprintf(
                 'The Property (%s) is not Writable.'
                 , $key
             ));
+
+        if ($setter = $this->_getSetterIfHas($key))
+            ## using setter method
+            return $this->$setter($value);
 
         if ($value === null)
             unset($this->properties[$key]);
@@ -106,17 +106,15 @@ class DataOptionsOpen
     {
         $key = $this->_normalize($key, 'external');
 
-        $return = null;
-        if ($getter = $this->_getGetterIfHas($key))
-            ## get from getter method
-            $return = $this->$getter();
-        elseif (array_key_exists($key, $this->properties)
-            ## not ignored
-            && !in_array('get'.$this->_normalize($key, 'internal'), $this->doWhichMethodIgnored())
-        )
-            $return = $this->properties[$key];
+        if (!in_array('get'.$this->_normalize($key, 'internal'), $this->doWhichMethodIgnored())) {
+            if ($getter = $this->_getGetterIfHas($key))
+                ## get from getter method
+                return $this->$getter();
+            elseif (array_key_exists($key, $this->properties))
+                return $this->properties[$key];
+        }
 
-        return $return;
+        return null;
     }
 
     /**
