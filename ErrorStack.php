@@ -59,7 +59,7 @@ final class ErrorStack
         # [
             # 'error_level' => int,
             # 'callable'    => null|callable,
-            # 'has_error'   => null|ErrorException,
+            # 'has_handled_error'   => null|ErrorException,
             # 'error_type'  => "error"|"exception"
         # ]
     );
@@ -119,7 +119,9 @@ final class ErrorStack
             'error_type'  => self::ERR_TYP_ERROR,
             'callable'    => $callable,
             'error_level' => $errorLevel,
-            'has_error'   => null,
+            'has_handled_error'   => null,
+
+            'trace'       => debug_backtrace()[0]
         );
 
         ## define stack error handler
@@ -144,17 +146,18 @@ final class ErrorStack
      */
     static function handleException(/*callable*/ $callable)
     {
-        $self = new self;
-
         # append error stack retrieved by self::_HandleErrors
         self::$_STACK[] = array(
-            'error_type'  => $self::ERR_TYP_EXCEPTION,
+            'error_type'  => self::ERR_TYP_EXCEPTION,
             'callable'    => $callable,
             'error_level' => null,
-            'has_error'   => null,
+            'has_handled_error'   => null,
+
+            'trace'       => debug_backtrace()[0]
         );
 
         ## define stack exception handler
+        $self = new self;
         set_exception_handler(function($exception) use ($self) {
             call_user_func(array($self, '_handleErrors'), $exception);
         });
@@ -163,15 +166,15 @@ final class ErrorStack
     /**
      * Get Current Accrued Error If Has
      *
-     * @return null|\Exception|\ErrorException
+     * @return false|\Exception|\ErrorException
      */
-    static function getAccruedErr()
+    static function hasErrorAccrued()
     {
         if (!self::hasHandling())
-            return null;
+            return false;
 
         $stack = self::$_STACK[self::getStackNum()-1];
-        return $stack['has_error'];
+        return $stack['has_handled_error'];
     }
 
     /**
@@ -190,11 +193,11 @@ final class ErrorStack
             return $return;
 
         $stack = array_pop(self::$_STACK);
-        if ($stack['has_error'])
-            $return = $stack['has_error'];
+        if ($stack['has_handled_error'])
+            $return = $stack['has_handled_error'];
 
         # restore error handler
-        (($stack['error_type']) == self::ERR_TYP_ERROR)
+        (($stack['error_type']) === self::ERR_TYP_ERROR)
             ? restore_error_handler()
             : restore_exception_handler()
         ;
@@ -263,24 +266,23 @@ final class ErrorStack
      *
      * @private
      */
-    static protected function _handleErrors($errno, $errstr = '', $errfile = '', $errline = 0)
+    static protected function _handleErrors($error, $errstr = '', $errfile = '', $errline = 0)
     {
         $Stack = & self::$_STACK[self::getStackNum()-1];
 
-        if (! $errno instanceof \Exception) {
-            if (interface_exists('Throwable') && $errno instanceof \Throwable)
+        if (! $error instanceof \Exception) {
+            if (interface_exists('Throwable') && $error instanceof \Throwable)
                 VOID;
             else {
                 ## handle errors
-                $errno = new ErrorException(
-                    $errstr, $errno, 1, $errfile, $errline
+                $error = new ErrorException(
+                    $errstr, $error, 1, $errfile, $errline
                 );
             }
         }
 
 
-        $Stack['has_error'] = $errno;
-
+        $Stack['has_handled_error'] = $error;
 
         // ...
 
@@ -291,7 +293,7 @@ final class ErrorStack
         try {
             ## call user error handler callable
             ## exception will passed as errno on exception catch
-            call_user_func($Stack['callable'], $errno);
+            call_user_func($Stack['callable'], $error);
         } catch (\Exception $e) {
             ## during handling an error if any exception happen it must handle with parent handler
             if (self::getStackNum() == $currLevel)
