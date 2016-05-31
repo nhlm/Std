@@ -268,12 +268,13 @@ final class ErrorStack
      */
     static protected function _handleErrors($error, $errstr = '', $errfile = '', $errline = 0)
     {
-        $Stack = & self::$_STACK[self::getStackNum()-1];
-
+        $ErrorType = self::ERR_TYP_EXCEPTION;
         if (! $error instanceof \Exception) {
             if (interface_exists('Throwable') && $error instanceof \Throwable)
                 VOID;
             else {
+                $ErrorType = self::ERR_TYP_ERROR;
+
                 ## handle errors
                 $error = new ErrorException(
                     $errstr, $error, 1, $errfile, $errline
@@ -281,6 +282,14 @@ final class ErrorStack
             }
         }
 
+        ## happen when start handleError() but within codeblock an exception rised
+        ## so code follow will stop then we need cleanup to first exception stack
+        while (self::getStackNum() && $Stack = &self::$_STACK[self::getStackNum()-1]) {
+            if ($ErrorType === $Stack['error_type'])
+                break;
+
+            self::handleDone();
+        }
 
         $Stack['has_handled_error'] = $error;
 
