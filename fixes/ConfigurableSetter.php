@@ -44,10 +44,6 @@ class ConfigurableSetter
      */
     function with($options, $throwException = false)
     {
-        if (empty($options))
-            # nothing to do
-            return $this;
-
         if ($options instanceof Traversable)
             $options = \Poirot\Std\cast($options)->toArray();
 
@@ -56,6 +52,10 @@ class ConfigurableSetter
                 'Options must be array or Traversable; given: (%s).'
                 , \Poirot\Std\flatten($options)
             ));
+
+        if (empty($options))
+            # nothing to do
+            return $this;
         
         if (array_values($options) == $options)
             throw new \InvalidArgumentException(sprintf(
