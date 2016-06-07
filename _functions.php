@@ -32,15 +32,43 @@ namespace Poirot\Std\Invokable
      * 
      * @return \Closure
      */
-    function resolveArguments(/*callable*/ $callable, $parameters)
+    function resolveCallableWithArgs(/*callable*/$callable, $parameters)
     {
         if ($parameters instanceof \Traversable)
             $parameters = \Poirot\Std\cast($parameters)->toArray();
         
+        
+        $reflection       = reflectCallable($callable);
+        $matchedArguments = resolveArgsForReflection($reflection, $parameters);
+        
+        $callbackResolved = function() use ($callable, $matchedArguments) {
+            return call_user_func_array($callable, $matchedArguments);
+        };
+        
+        return $callbackResolved;
+    }
+
+    /**
+     * Resolve Arguments Matched With Reflection Method/Function
+     *
+     * @param \ReflectionMethod|\ReflectionFunction $reflectFunc
+     * @param array|\Traversable                    $parameters Params to match with function arguments
+     *
+     * @return array Of Matching Arguments
+     */
+    function resolveArgsForReflection(/*callable*/$reflectFunc, $parameters)
+    {
+        if (!($reflectFunc instanceof \ReflectionFunction || $reflectFunc instanceof \ReflectionMethod))
+            throw new \InvalidArgumentException(sprintf(
+                '(%s) is not reflection.'
+                , \Poirot\Std\flatten($reflectFunc)
+            ));
+        
+        
+        
         $matchedArguments = array();
         
-        $reflection = reflectCallable($callable);
-        foreach ($reflection->getParameters() as $argument)
+        foreach ($reflectFunc->getParameters() as $argument)
         {
             /** @var \ReflectionParameter $argument */
             $argValue = $notSet = uniqid(); // maybe null value is default
@@ -55,22 +83,17 @@ namespace Poirot\Std\Invokable
                 $argValue = $parameters[$argName];
                 unset($parameters[$argName]);
             }
-            
+
             if ($argValue === $notSet)
                 throw new \InvalidArgumentException(sprintf(
                     'Callable (%s) has no match found on parameter (%s) from (%s) list.'
-                    , $reflection->getName(), $argument->getName(), \Poirot\Std\flatten($parameters)
+                    , $reflectFunc->getName(), $argument->getName(), \Poirot\Std\flatten($parameters)
                 ));
 
             $matchedArguments[$argument->getName()] = $argValue;
         }
         
-        
-        $callbackResolved = function() use ($callable, $matchedArguments) {
-            return call_user_func_array($callable, $matchedArguments);
-        };
-        
-        return $callbackResolved;
+        return $matchedArguments;
     }
     
     /**
