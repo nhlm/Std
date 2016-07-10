@@ -63,8 +63,10 @@ final class StdTravers
 
             if ($flag) continue;
 
-            if ($recursive && $val instanceof \Traversable) {
+            if ($recursive && ( $val instanceof \Traversable || is_array($val) ) ) {
                 ## deep convert
+                (!is_array($val)) ?: $val = new \ArrayIterator($val);
+                
                 $stdTravers = new StdTravers($val);
                 $val = $stdTravers->toArray($filter);
             }
