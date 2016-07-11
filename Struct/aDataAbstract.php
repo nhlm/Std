@@ -35,7 +35,7 @@ abstract class aDataAbstract
     /**
      * Set Struct Data From Array
      *
-     * @param array|\Traversable|null $data
+     * @param array|\Traversable|object|null $data
      *
      * @throws \InvalidArgumentException
      * @return $this
@@ -45,11 +45,14 @@ abstract class aDataAbstract
         if ($data === null)
             return $this;
 
-        if (!(is_array($data) || $data instanceof \Traversable))
+        if (!(is_array($data) || $data instanceof \Traversable || $data instanceof \stdClass))
             throw new \InvalidArgumentException(sprintf(
-                'Data must be instance of \Traversable or array. given: (%s)'
+                'Data must be instance of \Traversable, \stdClass or array. given: (%s)'
                 , \Poirot\Std\flatten($data)
             ));
+
+        if ($data instanceof \stdClass)
+            $data = \Poirot\Std\toArrayObject($data);
 
         $this->doSetFrom($data);
 
