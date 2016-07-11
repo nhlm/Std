@@ -40,7 +40,7 @@ abstract class aDataAbstract
      * @throws \InvalidArgumentException
      * @return $this
      */
-    function import($data)
+    final function import($data)
     {
         if ($data === null)
             return $this;
