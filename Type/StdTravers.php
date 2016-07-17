@@ -53,7 +53,7 @@ final class StdTravers
      *
      * @return array
      */
-    function toArray(\Closure $filter = null, $recursive = true)
+    function toArray(\Closure $filter = null, $recursive = false)
     {
         $arr = array();
         foreach($this->getIterator() as $key => $val) {
