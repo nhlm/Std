@@ -23,7 +23,6 @@ interface iDataEntity
      * @param mixed $key     Entity Key
      * @param null  $default Default If Not Value/Key Exists
      *
-     * @throws \Exception Value not found
      * @return mixed|null NULL value for a property considered __isset false
      */
     function get($key, $default = null);

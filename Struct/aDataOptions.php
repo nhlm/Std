@@ -146,16 +146,19 @@ abstract class aDataOptions
      */
     function isFulfilled($property_key = null)
     {
-        $fulFilled = true;
-
-        if ($property_key !== null)
-            $props = [(string)$property_key];
-        else
-            $props = $this->_getProperties();
-
         /** @var PropObject $propObject */
-        foreach($props as $propObject) {
-            if (!$propObject->isReadable()) continue;
+        $props = $this->_getProperties();
+        foreach($props as $propObject)
+        {
+            if ($property_key !== null && $property_key !== $propObject->getKey())
+                // iterate until reach requested property name
+                continue;
+
+            if (!$propObject->isReadable())
+                continue;
+
+            if (!isset($fulFilled))
+                $fulFilled = true;
 
             list($value, $expected) = $this->__extractValueAndExpectedMatchExpression($propObject->getKey());
             $fulFilled &= $this->__isValueMatchAsExpected($value, $expected);
@@ -163,6 +166,9 @@ abstract class aDataOptions
             if (!$fulFilled)
                 break; ## no more iteration
         }
+
+        if (!isset($fulFilled))
+            $fulFilled = false;
 
         return (boolean) $fulFilled;
     }
