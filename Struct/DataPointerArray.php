@@ -81,7 +81,12 @@ final class DataPointerArray
      */
     function import($data)
     {
-        throw new \Exception('Not Implemented.');
+        $p = &$this->__attainInternalPointer();
+
+        foreach ($data as $k => $v)
+            $p[$k] = $v;
+
+        return $this;
     }
 
     /**
