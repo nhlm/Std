@@ -31,8 +31,6 @@ abstract class aDataOptions
      */
     protected $_c__properties = null; // it must be null
 
-    /** @var \Closure Property keys normalizer */
-    protected $__normalizer;
     /** @var ReflectionClass */
     protected $_c_reflection;
     protected $_c_count;
@@ -329,6 +327,7 @@ abstract class aDataOptions
      * Get Options Properties Information
      *
      * !! used as iterator statement
+     * @return \Generator|array
      */
     protected function _getProperties()
     {
@@ -458,26 +457,27 @@ abstract class aDataOptions
         if ($type !== 'external' && $type !== 'internal')
             throw new \InvalidArgumentException;
 
-        if (!isset($this->__normalizer['internal']))
-            $this->__normalizer['internal'] = function($key) {
-                return Std\cast((string) $key)->camelCase();
-            };
+        if ($type === 'external')
+            $return = $this->_normalizeExternal($key);
+        else
+            $return = $this->_normalizeInternal($key);
 
-        if (!isset($this->__normalizer['external']))
-            $this->__normalizer['external'] = function($key) {
-                return strtolower(Std\cast((string) $key)->under_score());
-            };
-
-
-        $return = $this->__normalizer[$type];
-        $return = call_user_func($return, $key);
         return $return;
+    }
+
+    protected function _normalizeInternal($key)
+    {
+        return Std\cast((string) $key)->camelCase();
+    }
+
+    protected function _normalizeExternal($key)
+    {
+        return strtolower(Std\cast((string) $key)->under_score());
     }
 
     protected function __extractValueAndExpectedMatchExpression($property_key)
     {
         $ref = $this->_newReflection();
-
 
         // ...
 
@@ -634,5 +634,14 @@ done:
             $this->_c_reflection = new ReflectionClass($this);
 
         return $this->_c_reflection;
+    }
+
+    /**
+     * Reflection Class Serialization Cause Error
+     */
+    function __sleep()
+    {
+        // serialize all but reflection properties
+        return array_diff(array_keys(get_object_vars($this)), array('_c_reflection'));
     }
 }
