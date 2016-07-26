@@ -138,7 +138,7 @@ class DataOptionsOpen
 
     /**
      * Get Options Properties Information
-     *
+     * @return \Generator|array
      */
     protected function _getProperties()
     {

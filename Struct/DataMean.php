@@ -24,7 +24,7 @@ class DataMean
      *
      * @param array|\Traversable $data
      */
-    function doSetFrom($data)
+    protected function doSetFrom($data)
     {
         foreach($data as $k => $v)
             $this->__set($k, $v);
@@ -40,6 +40,7 @@ class DataMean
     public function getIterator()
     {
         foreach(array_keys($this->properties) as $key)
+            // TODO version compatibility fix
             yield $key => $this->__get($key);
     }
 

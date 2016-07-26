@@ -38,7 +38,7 @@ class DataEntity
      *
      * @param array|\Traversable $data
      */
-    function doSetFrom($data)
+    protected function doSetFrom($data)
     {
         foreach ($data as $k => $v)
             $this->set($k, $v);
