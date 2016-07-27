@@ -198,9 +198,8 @@ abstract class aDataOptions
      */
     function clean()
     {
-        /** @var PropObject $k */
         foreach($this as $k => $v)
-            $k->isReadable() && $this->del($k);
+            $this->del($k);
 
         return $this;
     }
