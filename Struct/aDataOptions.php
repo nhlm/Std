@@ -159,6 +159,8 @@ abstract class aDataOptions
                 $fulFilled = true;
 
             list($value, $expected) = $this->__extractValueAndExpectedMatchExpression($propObject->getKey());
+            if ($expected === 'NOT_EXPECTED') continue;
+
             $fulFilled &= $this->__isValueMatchAsExpected($value, $expected);
 
             if (!$fulFilled)
@@ -480,7 +482,7 @@ abstract class aDataOptions
 
         // ...
 
-        $expectedValue = null;
+        $expectedValue = 'NOT_EXPECTED';
 
         try{
             $currentValue  = $this->__get($property_key);
@@ -545,10 +547,11 @@ done:
     protected function __isValueMatchAsExpected($value, $expectedString)
     {
         $match = false;
-        if ($expectedString == null)
+
+        if ($expectedString === null)
             ## undefined expected values must not be NULL
             ## except when it write down on docblock "@return void"
-            return $value !== null;
+            return $value === null;
 
         $valueType = strtolower(gettype($value));
 
