@@ -415,7 +415,7 @@ namespace Poirot\Std
      *
      * @return mixed
      */
-    function emptyCoalesce($data, $default)
+    function emptyCoalesce($data, $default = null)
     {
         return ($data === null || $data === false) ? $default : $data;
     }
