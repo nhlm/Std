@@ -63,7 +63,7 @@ trait tConfigurableSetter
 
         $remained = array();
         foreach($options as $key => $val) {
-            $setter = 'set' . \Poirot\Std\cast((string) $key)->camelCase();
+            $setter = 'set' . \Poirot\Std\cast((string) $key)->PascalCase();
             // It can be public or protected methods
             // usually protected methods can be used as helper 
             // to build class with options
