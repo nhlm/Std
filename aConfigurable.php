@@ -50,7 +50,7 @@ abstract class aConfigurable
     {
         if (!static::isConfigurableWith($optionsResource))
             throw new \InvalidArgumentException(sprintf(
-                'Invalid Resource provided; given: (%s).'
+                'Invalid Configuration Resource provided; given: (%s).'
                 , \Poirot\Std\flatten($optionsResource)
             ));
         
