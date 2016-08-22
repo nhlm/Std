@@ -286,7 +286,7 @@ abstract class aDataOptions
         $return = null;
         if ($getter = $this->_getGetterIfHas($key))
             $return = $this->$getter();
-        elseif ($this->_isMethodExists('set' . $this->_normalize($key, 'internal')))
+        elseif ($this->_getSetterIfHas($key))
             throw new \Exception(sprintf(
                 'The Property (%s) is writeonly.'
                 , $key
@@ -468,7 +468,7 @@ abstract class aDataOptions
 
     protected function _normalizeInternal($key)
     {
-        return Std\cast((string) $key)->camelCase();
+        return Std\cast((string) $key)->PascalCase();
     }
 
     protected function _normalizeExternal($key)

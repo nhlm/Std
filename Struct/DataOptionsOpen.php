@@ -119,7 +119,7 @@ class DataOptionsOpen
 
     /**
      * @param string $key
-     * @return void
+     * @throws \Exception
      */
     function __unset($key)
     {
@@ -129,7 +129,12 @@ class DataOptionsOpen
             try{
                 ## some times it can be set to null because of argument type definition
                 $this->__set($key, null);
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+                throw new \Exception(sprintf(
+                    'Key (%s) cant be unset due setter method (%s) error!'
+                    , $key, $setter
+                ));
+            }
         else {
             if (array_key_exists($key, $this->properties))
                 unset($this->properties[$key]);
