@@ -28,7 +28,24 @@ final class StdString
     function PascalCase()
     {
         $key = (string) $this;
-        return new StdString(str_replace(' ', '', ucwords(str_replace('_', ' ', $key))));
+        
+        ## prefix and postfix __ remains; like: __this__
+        
+        $pos = 'prefix';
+        $prefix = '';
+        $posfix = '';
+        for ($i = 0; $i <= strlen($key)-1; $i++) {
+            if ($key[$i] == '_')
+                $$pos.='_';
+            else {
+                $posfix = ''; // reset posix, _ may found within string
+                $pos  = 'posfix';
+            }
+        }
+
+        $r = str_replace(' ', '', ucwords(str_replace('_', ' ', $key)));
+        $r = $prefix.$r.$posfix;
+        return new StdString($r);
     }
 
     /**
