@@ -92,13 +92,13 @@ class DataEntity
 
         // avoid recursive trait call, may conflict on classes that
         // implement in this case has() method
-        if (
+        /*if (
             !array_key_exists($key, $properties)
             && $default === null
         )
             throw new \Exception(sprintf(
                 'Property (%s) not found in entity.', $key
-            ));
+            ));*/
 
         return (array_key_exists($key, $properties))
             ? $properties[$key]
