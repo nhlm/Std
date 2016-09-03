@@ -159,7 +159,7 @@ abstract class EnvBase
     function doDefinedConst(array $consts)
     {
         foreach ($consts as $const => $value)
-            define((string) $consts, $value);
+            define((string) $const, $value);
         
         return $this;
     }
