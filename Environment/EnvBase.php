@@ -19,6 +19,7 @@ abstract class EnvBase
     protected $errorReporting;
     protected $displayStartupErrors;
     protected $htmlErrors;
+    protected $definedConst = array();
 
     /**
      * Setup Php Environment
@@ -153,5 +154,31 @@ abstract class EnvBase
     function getHtmlErrors()
     {
         return $this->htmlErrors;
+    }
+
+    function doDefinedConst(array $consts)
+    {
+        foreach ($consts as $const => $value)
+            define((string) $consts, $value);
+        
+        return $this;
+    }
+    
+    /**
+     * @return array
+     */
+    function getDefinedConst()
+    {
+        return $this->definedConst;
+    }
+
+    /**
+     * @param array $definedConst
+     * @return $this
+     */
+    function setDefinedConst($definedConst)
+    {
+        $this->definedConst = $definedConst;
+        return $this;
     }
 }
