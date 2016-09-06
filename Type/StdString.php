@@ -57,7 +57,7 @@ final class StdString
     {
         $key = (string) $this;
 
-        $output = strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], '$1_$2', $key));
+        $output = strtolower(preg_replace(array('/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'), '$1_$2', $key));
 
         return new StdString($output);
     }
