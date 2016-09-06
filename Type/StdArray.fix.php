@@ -9,7 +9,7 @@ if (!class_exists('\SplType'))
     !class_exists('Poirot\Std\Type\AbstractNSplType')
     && require_once __DIR__.'/fixes/AbstractNSplType.php';
 
-    class_alias('\Poirot\Std\Type\AbstractNSplType', '\SplType');
+    class_alias('\Poirot\Std\Type\AbstractNSplType', 'SplType');
 }
 
 /*
