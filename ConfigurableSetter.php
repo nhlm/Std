@@ -8,12 +8,4 @@ if (version_compare(phpversion(), '5.4.0') < 0) {
     return;
 }
 
-use Poirot\Std\Interfaces\Pact\ipConfigurable;
-use Poirot\Std\Traits\tConfigurableSetter;
-
-class ConfigurableSetter
-    extends    aConfigurable
-    implements ipConfigurable
-{
-    use tConfigurableSetter;
-}
+require_once __DIR__.'/ConfigurableSetter.fix.php';
