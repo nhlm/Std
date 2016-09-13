@@ -115,13 +115,14 @@ final class ErrorStack
         // ..
 
         ## append error stack retrieved by self::_HandleErrors
+        $trace = debug_backtrace();
         self::$_STACK[] = array(
             'error_type'  => self::ERR_TYP_ERROR,
             'callable'    => $callable,
             'error_level' => $errorLevel,
             'has_handled_error'   => null,
 
-            'trace'       => debug_backtrace()[0]
+            'trace'       => $trace[0],
         );
 
         ## define stack error handler
@@ -146,6 +147,8 @@ final class ErrorStack
      */
     static function handleException(/*callable*/ $callable)
     {
+        $trace = debug_backtrace();
+
         # append error stack retrieved by self::_HandleErrors
         self::$_STACK[] = array(
             'error_type'  => self::ERR_TYP_EXCEPTION,
@@ -153,7 +156,7 @@ final class ErrorStack
             'error_level' => null,
             'has_handled_error'   => null,
 
-            'trace'       => debug_backtrace()[0]
+            'trace'       => $trace[0],
         );
 
         ## define stack exception handler
