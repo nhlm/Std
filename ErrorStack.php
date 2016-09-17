@@ -269,11 +269,11 @@ final class ErrorStack
      *
      * @private
      */
-    static protected function _handleErrors($error, $errstr = '', $errfile = '', $errline = 0)
+    static function _handleErrors($error, $errstr = '', $errfile = '', $errline = 0)
     {
         $ErrorType = self::ERR_TYP_EXCEPTION;
         if (! $error instanceof \Exception) {
-            if (interface_exists('Throwable') && $error instanceof \Throwable)
+            if (interface_exists('Throwable', false) && $error instanceof \Throwable)
                 VOID;
             else {
                 $ErrorType = self::ERR_TYP_ERROR;
