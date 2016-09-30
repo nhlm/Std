@@ -4,7 +4,7 @@ namespace Poirot\Std\Type;
 use ArrayIterator;
 use Traversable;
 
-if (!class_exists('\SplType'))
+if (!class_exists('\SplType', false))
 {
     !class_exists('Poirot\Std\Type\AbstractNSplType')
     && require_once __DIR__.'/fixes/AbstractNSplType.php';

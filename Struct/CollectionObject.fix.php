@@ -205,10 +205,8 @@ class CollectionObject implements iCollectionObject, \Iterator
         $return = array();
         foreach($this->_objs as $hash => $obAr) {
             $obData = $obAr['data'];
-            if ($data == array_intersect_assoc($obData, $data)) {
-                $r = array($hash => $this->_objs[$hash]['object']);
-                $return[] = $r;
-            }
+            if ($data == array_intersect_assoc($obData, $data))
+                $return[$hash] = $this->_objs[$hash]['object'];
         }
 
         return $return;

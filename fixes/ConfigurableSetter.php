@@ -18,7 +18,7 @@ class ConfigurableSetter
     // use tConfigurableSetter;
 
     ## just determine that fixed class loaded in debugs
-    protected $IS_FIX;
+    protected $IS_FIX = true;
 
     
     ## @see tConfigurableSetter;

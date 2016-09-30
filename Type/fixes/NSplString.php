@@ -1,7 +1,7 @@
 <?php
 namespace Poirot\Std\Type;
 
-!class_exists('Poirot\Std\Type\AbstractNSplType')
+!class_exists('\Poirot\Std\Type\AbstractNSplType')
 && require_once __DIR__.'/AbstractNSplType.php';
 
 /**
