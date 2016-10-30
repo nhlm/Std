@@ -158,9 +158,16 @@ abstract class EnvBase
 
     function doDefinedConst(array $consts)
     {
-        foreach ($consts as $const => $value)
+        foreach ($consts as $const => $value) {
+            if (defined($const))
+                throw new \RuntimeException(sprintf(
+                    'Constant (%s) is defined and can`t override.'
+                    , $const
+                ));
+
             define((string) $const, $value);
-        
+        }
+
         return $this;
     }
     
