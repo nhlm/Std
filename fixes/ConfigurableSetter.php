@@ -9,7 +9,7 @@
 namespace Poirot\Std;
 
 use Poirot\Std\Interfaces\Pact\ipConfigurable;
-use Traversable;
+
 
 class ConfigurableSetter
     extends    aConfigurable
@@ -44,7 +44,7 @@ class ConfigurableSetter
      */
     function with($options, $throwException = false)
     {
-        if ($options instanceof Traversable)
+        if ($options instanceof \Traversable)
             $options = \Poirot\Std\cast($options)->toArray();
 
         if (!is_array($options))

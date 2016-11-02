@@ -1,7 +1,6 @@
 <?php
 namespace Poirot\Std\Traits;
 
-use Traversable;
 
 trait tConfigurableSetter
 {
@@ -26,7 +25,7 @@ trait tConfigurableSetter
      */
     function with($options, $throwException = false)
     {
-        if ($options instanceof Traversable)
+        if ($options instanceof \Traversable)
             $options = \Poirot\Std\cast($options)->toArray();
 
         if (!is_array($options))
