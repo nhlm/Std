@@ -71,15 +71,27 @@ final class InvokableResponder
                 // collect invokable from begining
                 array_unshift($linked, $previous);
 
-            foreach ($linked as $invokable) {
+            foreach ($linked as $invokable)
+            {
                 // execute and merge each result
-                $r = \Poirot\Std\Invokable\resolveCallableWithArgs($invokable, $result);
+                try {
+                    $r = \Poirot\Std\Invokable\resolveCallableWithArgs($invokable, $result);
+                } catch (\Exception $e) {
+                    throw new \Exception($e->getMessage(), null, $e);
+                }
+
                 $r = call_user_func($r);
                 $result = $this->_mergeResults($r, $result);
             }
 
-            if ($this->bootupInvokable) {
-                $r = \Poirot\Std\Invokable\resolveCallableWithArgs($this->bootupInvokable, $result);
+            if ($this->bootupInvokable)
+            {
+                try {
+                    $r = \Poirot\Std\Invokable\resolveCallableWithArgs($this->bootupInvokable, $result);
+                } catch (\Exception $e) {
+                    throw new \Exception($e->getMessage(), null, $e);
+                }
+
                 $r = call_user_func($r);
                 $result = $this->_mergeResults($r, $result);
             }
