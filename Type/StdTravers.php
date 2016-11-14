@@ -68,7 +68,7 @@ final class StdTravers
                 (!is_array($val)) ?: $val = new \ArrayIterator($val);
                 
                 $stdTravers = new StdTravers($val);
-                $val = $stdTravers->toArray($filter);
+                $val = $stdTravers->toArray($filter, $recursive);
             }
 
             if (!\Poirot\Std\isStringify($key))
