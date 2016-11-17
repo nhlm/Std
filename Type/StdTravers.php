@@ -56,20 +56,24 @@ final class StdTravers
     function toArray(\Closure $filter = null, $recursive = false)
     {
         $arr = array();
-        foreach($this->getIterator() as $key => $val) {
-            $flag = false;
-            if ($filter !== null)
-                $flag = $filter($val, $key);
-
-            if ($flag) continue;
-
+        foreach($this->getIterator() as $key => $val)
+        {
             if ($recursive && ( $val instanceof \Traversable || is_array($val) ) ) {
+                // (A) At the end value can be empty by filter
                 ## deep convert
                 (!is_array($val)) ?: $val = new \ArrayIterator($val);
                 
                 $stdTravers = new StdTravers($val);
                 $val = $stdTravers->toArray($filter, $recursive);
             }
+
+            // (B) So Filter Check Placed After Recursive Calls
+            $flag = false;
+            if ($filter !== null)
+                $flag = $filter($val, $key);
+
+            if ($flag) continue;
+
 
             if (!\Poirot\Std\isStringify($key))
                 ## some poirot Traversable is able to handle objects as key
