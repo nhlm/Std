@@ -71,6 +71,19 @@ final class InvokableResponder
                 // collect invokable from begining
                 array_unshift($linked, $previous);
 
+
+            if ($this->bootupInvokable)
+            {
+                try {
+                    $r = \Poirot\Std\Invokable\resolveCallableWithArgs($this->bootupInvokable, $result);
+                } catch (\Exception $e) {
+                    throw new \Exception($e->getMessage(), null, $e);
+                }
+
+                $r = call_user_func($r);
+                $result = $this->_mergeResults($r, $result);
+            }
+
             foreach ($linked as $invokable)
             {
                 // execute and merge each result
@@ -84,17 +97,7 @@ final class InvokableResponder
                 $result = $this->_mergeResults($r, $result);
             }
 
-            if ($this->bootupInvokable)
-            {
-                try {
-                    $r = \Poirot\Std\Invokable\resolveCallableWithArgs($this->bootupInvokable, $result);
-                } catch (\Exception $e) {
-                    throw new \Exception($e->getMessage(), null, $e);
-                }
 
-                $r = call_user_func($r);
-                $result = $this->_mergeResults($r, $result);
-            }
             
         } catch(\Exception $e) {
             if ($this->_onFailure)
