@@ -63,11 +63,19 @@ namespace Poirot\Std\Invokable
                 '(%s) is not reflection.'
                 , \Poirot\Std\flatten($reflectFunc)
             ));
-        
-        
-        
+
+        $arguments = array();
+        // Create Map Of "field_name" to "fieldName" and "FieldName" to Resolve To Callable
+        foreach ($parameters as $key => $val) {
+            $res = (string) \Poirot\Std\cast($key)->camelCase();
+            if (!isset($parameters[$res]))
+                $arguments[strtolower($res)] = $val;
+
+            $arguments[strtolower($key)] = $val;
+        }
+
+
         $matchedArguments = array();
-        
         foreach ($reflectFunc->getParameters() as $argument)
         {
             /** @var \ReflectionParameter $argument */
@@ -77,11 +85,11 @@ namespace Poirot\Std\Invokable
                 $argValue = $argument->getDefaultValue();
 
             ## resolve argument value match with name given in parameters list
-            $argName = $argument->getName();
-            if (array_key_exists($argName, $parameters)) {
+            $argName = strtolower($argument->getName());
+            if (array_key_exists($argName, $arguments)) {
                 ### use value of given parameters
-                $argValue = $parameters[$argName];
-                unset($parameters[$argName]);
+                $argValue = $arguments[$argName];
+                unset($arguments[$argName]);
             }
 
             if ($argValue === $notSet)
@@ -92,7 +100,7 @@ namespace Poirot\Std\Invokable
 
             $matchedArguments[$argument->getName()] = $argValue;
         }
-        
+
         return $matchedArguments;
     }
     
