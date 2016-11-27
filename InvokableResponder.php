@@ -15,6 +15,9 @@ echo $invokable->__invoke(['family' => 'Naderi'])['final_result'];
 // Hello Payam Naderi.
 */
 
+// TODO inject default params
+// - $invokable = new InvokableResponder(function () use ($params) { return $params; });
+// - with currently constructor argument preInvokable its not behave perfectly
 final class InvokableResponder
 {
     /** @var callable */
@@ -72,17 +75,7 @@ final class InvokableResponder
                 array_unshift($linked, $previous);
 
 
-            if ($this->bootupInvokable)
-            {
-                try {
-                    $r = \Poirot\Std\Invokable\resolveCallableWithArgs($this->bootupInvokable, $result);
-                } catch (\Exception $e) {
-                    throw new \Exception($e->getMessage(), null, $e);
-                }
-
-                $r = call_user_func($r);
-                $result = $this->_mergeResults($r, $result);
-            }
+            // ORDER IS MANDATORY:
 
             foreach ($linked as $invokable)
             {
@@ -97,7 +90,17 @@ final class InvokableResponder
                 $result = $this->_mergeResults($r, $result);
             }
 
+            if ($this->bootupInvokable)
+            {
+                try {
+                    $r = \Poirot\Std\Invokable\resolveCallableWithArgs($this->bootupInvokable, $result);
+                } catch (\Exception $e) {
+                    throw new \Exception($e->getMessage(), null, $e);
+                }
 
+                $r = call_user_func($r);
+                $result = $this->_mergeResults($r, $result);
+            }
             
         } catch(\Exception $e) {
             if ($this->_onFailure)
@@ -222,7 +225,7 @@ final class InvokableResponder
             $result = array($this->_getIdentifier() => $result);
 
         $merge = \Poirot\Std\cast($previousArray);
-        $merge = $merge->withMergeRecursive($result);
+        $merge = $merge->withMerge($result);
         
         return \Poirot\Std\cast($merge)->toArray();
     }
