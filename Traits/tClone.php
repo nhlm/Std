@@ -9,7 +9,7 @@ trait tClone
 {
     function __clone()
     {
-        $_f__clone_array = function($arr) use (&$_f__clone_array) {
+        $_f__clone_array = function(&$arr) use (&$_f__clone_array) {
             foreach ($arr as &$v) {
                 if (is_array($v))
                     $_f__clone_array($v);
