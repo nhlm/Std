@@ -2,13 +2,30 @@
 namespace Poirot\Std\Type;
 
 if (!class_exists('SplString', false)) {
-    require_once __DIR__.'/fixes/NSplString.php';
+    require_once __DIR__ . '/fixes/NSplString.php';
     class_alias('\Poirot\Std\Type\NSplString', 'SplString');
 }
 
 final class StdString 
     extends \SplString
 {
+    /**
+     * Remove a prefix string from the beginning of a string
+     *
+     * @param string $prefix
+     *
+     * @return string
+     */
+    function stripPrefix($prefix)
+    {
+        $key = (string) $this;
+
+        if (substr($key, 0, strlen($prefix)) == $prefix)
+            $key = substr($key, strlen($prefix));
+
+        return new self($key);
+    }
+
     /**
      * Sanitize Underscore To Camelcase
      *
@@ -17,7 +34,7 @@ final class StdString
     function camelCase()
     {
         $Pascal = lcfirst((string)$this->PascalCase());
-        return new StdString($Pascal);
+        return new self($Pascal);
     }
 
     /**
@@ -45,7 +62,7 @@ final class StdString
 
         $r = str_replace(' ', '', ucwords(str_replace('_', ' ', $key)));
         $r = $prefix.$r.$posfix;
-        return new StdString($r);
+        return new self($r);
     }
 
     /**
@@ -59,6 +76,6 @@ final class StdString
 
         $output = strtolower(preg_replace(array('/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'), '$1_$2', $key));
 
-        return new StdString($output);
+        return new self($output);
     }
 }
