@@ -10,6 +10,43 @@ final class StdString
     extends \SplString
 {
     /**
+     * Is Contain UTF-8 Encoding?
+     *
+     * @return bool
+     */
+    function isUTF8()
+    {
+        $string = (string) $this;
+        return (strlen($string) != strlen(utf8_decode($string)));
+    }
+
+    /**
+     * // TODO mb_string
+     *
+     * To Lower
+     * @return StdString
+     */
+    function toLower()
+    {
+        $key = (string) $this;
+        $key = strtolower($key);
+
+        return new self($key);
+    }
+
+    /**
+     * To Upper
+     * @return StdString
+     */
+    function toUpper()
+    {
+        $key = (string) $this;
+        $key = strtoupper($key);
+
+        return new self($key);
+    }
+
+    /**
      * Remove a prefix string from the beginning of a string
      *
      * @param string $prefix
