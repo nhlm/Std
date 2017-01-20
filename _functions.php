@@ -452,6 +452,19 @@ namespace Poirot\Std
     }
 
     /**
+     * Swap Value Of Two Variable
+     *
+     * @param mixed $a
+     * @param mixed $b
+     *
+     * @return void
+     */
+    function swap(&$a, &$b)
+    {
+        list($a, $b) = array($b, $a);
+    }
+
+    /**
      * Check Variable/Object Is String
      *
      * @param mixed $var
