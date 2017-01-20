@@ -65,40 +65,63 @@ namespace Poirot\Std\Invokable
             ));
 
         $arguments = array();
-        // Create Map Of "field_name" to "fieldName" and "FieldName" to Resolve To Callable
         foreach ($parameters as $key => $val) {
-            $res = (string) \Poirot\Std\cast($key)->camelCase();
-            if (!isset($parameters[$res]))
-                $arguments[strtolower($res)] = $val;
+            if (is_string($key)) {
+                // Create Map Of "field_name" to "fieldName" and "FieldName" to Resolve To Callable
+                $res = (string) \Poirot\Std\cast($key)->camelCase();
+                if (!isset($parameters[$res]))
+                    $arguments[strtolower($res)] = $val;
 
-            $arguments[strtolower($key)] = $val;
+                $arguments[strtolower($key)] = $val;
+            }
+
+            $arguments[$key] = $val;
         }
 
 
         $matchedArguments = array();
-        foreach ($reflectFunc->getParameters() as $argument)
+        foreach ($reflectFunc->getParameters() as $reflectArgument)
         {
-            /** @var \ReflectionParameter $argument */
+            /** @var \ReflectionParameter $reflectArgument */
             $argValue = $notSet = uniqid(); // maybe null value is default
 
-            if ($argument->isDefaultValueAvailable())
-                $argValue = $argument->getDefaultValue();
+            if ($reflectArgument->isDefaultValueAvailable())
+                $argValue = $reflectArgument->getDefaultValue();
 
-            ## resolve argument value match with name given in parameters list
-            $argName = strtolower($argument->getName());
+            $argName = strtolower($reflectArgument->getName());
             if (array_key_exists($argName, $arguments)) {
-                ### use value of given parameters
+                ## resolve argument value match with name given in parameters list
                 $argValue = $arguments[$argName];
                 unset($arguments[$argName]);
+            } else {
+                ## in depth argument resolver
+                $av = null;
+                foreach ($arguments as $k => $v) {
+                    if ( ( $class = $reflectArgument->getClass() ) && is_object($v) && $class->isInstance($v) )
+                        $av = $v;
+                    
+                    if ( $reflectArgument->isArray() && is_array($v) )
+                        $av = $v;
+                    
+                    if ( $reflectArgument->isCallable() && is_callable($v) )
+                        $av = $v;
+                    
+                    if ($av !== null) {
+                        unset($arguments[$k]);
+                        break;
+                    }
+                }
+                
+                ($av === null) ?: $argValue = $av; 
             }
 
             if ($argValue === $notSet)
                 throw new \InvalidArgumentException(sprintf(
                     'Callable (%s) has no match found on parameter (%s) from (%s) list.'
-                    , $reflectFunc->getName(), $argument->getName(), \Poirot\Std\flatten($parameters)
+                    , $reflectFunc->getName(), $reflectArgument->getName(), \Poirot\Std\flatten($parameters)
                 ));
 
-            $matchedArguments[$argument->getName()] = $argValue;
+            $matchedArguments[$reflectArgument->getName()] = $argValue;
         }
 
         return $matchedArguments;
