@@ -52,11 +52,13 @@ namespace Poirot\Std\Invokable
      * Resolve Arguments Matched With Reflection Method/Function
      *
      * @param \ReflectionMethod|\ReflectionFunction $reflectFunc
-     * @param array|\Traversable                    $parameters Params to match with function arguments
+     * @param array|\Traversable                    $parameters  Params to match with function arguments
+     * @param bool                                  $inDepth     Resolve argument in depth from parameters; if false just
+     *                                                           resolve arguments by name
      *
      * @return array Of Matching Arguments
      */
-    function resolveArgsForReflection(/*callable*/$reflectFunc, $parameters)
+    function resolveArgsForReflection(/*callable*/$reflectFunc, $parameters, $inDepth = true)
     {
         if (!($reflectFunc instanceof \ReflectionFunction || $reflectFunc instanceof \ReflectionMethod))
             throw new \InvalidArgumentException(sprintf(
@@ -93,7 +95,7 @@ namespace Poirot\Std\Invokable
                 ## resolve argument value match with name given in parameters list
                 $argValue = $arguments[$argName];
                 unset($arguments[$argName]);
-            } else {
+            } elseif($inDepth) {
                 ## in depth argument resolver
                 $av = null;
                 foreach ($arguments as $k => $v) {
