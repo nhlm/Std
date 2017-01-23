@@ -120,7 +120,11 @@ namespace Poirot\Std\Invokable
             if ($argValue === $notSet)
                 throw new \InvalidArgumentException(sprintf(
                     'Callable (%s) has no match found on parameter (%s) from (%s) list.'
-                    , $reflectFunc->getName(), $reflectArgument->getName(), \Poirot\Std\flatten($parameters)
+                    , ($reflectFunc instanceof \ReflectionMethod)
+                        ? $reflectFunc->getDeclaringClass()->getName().'::'.$reflectFunc->getName()
+                        : $reflectFunc->getName()
+                    , $reflectArgument->getName()
+                    , \Poirot\Std\flatten($parameters)
                 ));
 
             $matchedArguments[$reflectArgument->getName()] = $argValue;
