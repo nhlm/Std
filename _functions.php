@@ -238,7 +238,7 @@ namespace Poirot\Std\Lexer
 
             $Token = $matches['_token_'];
             if ($Token === ':') {
-                $pmatch = preg_match("(\G(?P<_name_>[^$TOKENS]+)(?:{(?P<_delimiter_>[^.]+)})?:?)"
+                $pmatch = preg_match("(\G(?P<_name_>[^$TOKENS]+)(?:{(?P<_delimiter_>[^.}]+)})?:?)"
                     , $criteria
                     , $matches
                     , 0
