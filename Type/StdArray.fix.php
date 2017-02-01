@@ -259,11 +259,14 @@ final class StdArray extends \SplType
                     $a[$key] = $m->withMerge($value)->value;
                 }
                 else {
-                    $cv = $a[$key];
-                    $a[$key] = array();
-                    $pa = &$a[$key];
-                    array_push($pa, $cv);
-                    array_push($pa, $value);
+                    if ($value !== $a[$key]) {
+                        // merge recursively only if given value is different
+                        $cv = $a[$key];
+                        $a[$key] = array();
+                        $pa = &$a[$key];
+                        array_push($pa, $cv);
+                        array_push($pa, $value);
+                    }
                 }
             } else
                 $a[$key] = $value;
