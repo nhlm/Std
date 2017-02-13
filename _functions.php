@@ -409,7 +409,13 @@ namespace Poirot\Std
     use Poirot\Std\Type\StdArray;
     use Poirot\Std\Type\StdString;
     use Poirot\Std\Type\StdTravers;
-    
+
+    const CODE_NUMBERS       = 2;
+    const CODE_STRINGS_LOWER = 4;
+    const CODE_STRINGS_UPPER = 8;
+    const CODE_STRINGS       = CODE_STRINGS_LOWER | CODE_STRINGS_UPPER;
+
+
     /**
      * Cast Given Value Into SplTypes
      * SplTypes Contains Some Utility For That Specific Type
@@ -441,6 +447,39 @@ namespace Poirot\Std
         }
 
         return $return;
+    }
+
+    /**
+     * // TODO $contains is string contains chars. to use by shuffler
+     * Generate Random Strings
+     *
+     * @param int $length
+     * @param int $contains
+     *
+     * @return string
+     */
+    function generateShuffleCode($length = 8, $contains = CODE_NUMBERS | CODE_STRINGS)
+    {
+        $characters = null;
+
+        if (($contains & CODE_NUMBERS) == CODE_NUMBERS)
+            $characters .= '0123456789';
+
+        if (($contains & CODE_STRINGS_LOWER) == CODE_STRINGS_LOWER)
+            $characters .= 'abcdefghijklmnopqrstuvwxyz';
+
+        if (($contains & CODE_STRINGS_UPPER) == CODE_STRINGS_UPPER)
+            $characters .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        if ($characters === null)
+            throw new \InvalidArgumentException('Invalid Contains Argument Provided; Does Not Match Any Condition.');
+
+
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++)
+            $randomString .= $characters[rand(0, strlen($characters) - 1)];
+
+        return $randomString;
     }
 
     /**
