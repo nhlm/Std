@@ -56,7 +56,8 @@ abstract class aConfigurable
         
         // ..
         
-
+        // TODO just return array
+        
         return $optionsResource;
     }
 

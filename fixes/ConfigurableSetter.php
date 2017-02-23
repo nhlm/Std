@@ -44,6 +44,8 @@ class ConfigurableSetter
      */
     function with($options, $throwException = false)
     {
+        // TODO just get array as argument; others must convert from parseWith Implementation
+        
         if ($options instanceof \Traversable)
             $options = \Poirot\Std\cast($options)->toArray();
 
