@@ -3,6 +3,7 @@ namespace Poirot\Std\Struct;
 
 use Poirot\Std\Interfaces\Struct\iData;
 
+
 abstract class aDataAbstract 
     implements iData
 {

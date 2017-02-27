@@ -47,4 +47,3 @@ interface iData extends \IteratorAggregate, \Countable
      */
     function del($key);
 }
-
