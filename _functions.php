@@ -523,7 +523,7 @@ namespace Poirot\Std
             (is_object($var)  && method_exists($var, '__toString' ))
         ));
     }
-    
+
     /**
      * Convert Object To Array
      *
@@ -540,6 +540,30 @@ namespace Poirot\Std
             return array_map(__FUNCTION__, $data);
         else
             return $data;
+    }
+
+    /**
+     * Represent Stringify From Variable
+     *
+     * @param mixed $var
+     *
+     * @return string
+     * @throws \Exception
+     */
+    function toStrVar($var)
+    {
+        $r = null;
+
+        if (is_bool($var))
+            $r = ($r) ? 'True' : 'False';
+        elseif (is_null($var))
+            $r = 'null';
+        elseif (isStringify($var))
+            $r = (string) $var;
+        else
+            throw new \Exception(sprintf('Variable (%s) cant convert to string.'));
+
+        return $r;
     }
 
     /**
