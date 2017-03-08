@@ -203,11 +203,11 @@ class DataOptionsOpen
 
         foreach(array_keys($this->properties) as $propertyName)
         {
-            if (in_array($propertyName, $yielded))
+            if (!is_int($propertyName) && in_array($propertyName, $yielded))
                 continue;
 
+            
             $property = null;
-
             foreach(array('set', 'get', 'is') as $prefix) {
                 # check for ignorant
                 $method = $prefix . $this->_normalize($propertyName, 'internal');
@@ -216,7 +216,9 @@ class DataOptionsOpen
                     continue;
 
                 // mark readable/writable for property
-                $property = new PropObject($propertyName);
+                if (!isset($property))
+                    $property = new PropObject($propertyName);
+
                 ($prefix == 'set')
                     ? $property->setWritable()
                     : $property->setReadable()

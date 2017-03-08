@@ -588,7 +588,7 @@ done:
 
         // ignored methods from Class DocComment:
         $classDocComment = $ref->getDocComment();
-        if (preg_match_all('/.*[\n]?/', $classDocComment, $lines)) {
+        if ($classDocComment !== false && preg_match_all('/.*[\n]?/', $classDocComment, $lines)) {
             $lines = $lines[0];
             $regex = '/.+(@method).+((?P<method_name>\b\w+)\(.*\))\s@ignore\s/';
             foreach($lines as $line) {
@@ -601,7 +601,7 @@ done:
         $methods = $ref->getMethods(ReflectionMethod::IS_PUBLIC);
         foreach($methods as $m) {
             $mc = $m->getDocComment();
-            if (preg_match('/@ignore\s/', $mc, $matches))
+            if ($mc !== false && preg_match('/@ignore\s/', $mc, $matches))
                 $this->ignore($m->getName());
         }
     }
