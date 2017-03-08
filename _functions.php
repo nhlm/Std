@@ -555,7 +555,7 @@ namespace Poirot\Std
         $r = null;
 
         if (is_bool($var))
-            $r = ($r) ? 'True' : 'False';
+            $r = ($var) ? 'True' : 'False';
         elseif (is_null($var))
             $r = 'null';
         elseif (isStringify($var))
