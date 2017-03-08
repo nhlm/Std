@@ -90,7 +90,7 @@ class DataOptionsOpen
             ## using setter method
             return $this->$setter($value);
 
-        if ($value === null)
+        if ($value === null and isset($this->properties[$key]))
             unset($this->properties[$key]);
         else
             $this->properties[$key] = $value;
