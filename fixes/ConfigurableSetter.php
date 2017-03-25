@@ -93,8 +93,8 @@ class ConfigurableSetter
             } elseif($throwException) {
                 throw new \InvalidArgumentException(
                     sprintf(
-                        'The option "%s" does not have a matching "%s" setter method',
-                        $key, $setter
+                        'The option (%s) does not have a matching (%s) setter method on (%s).',
+                        $key, $setter, get_class($this)
                     )
                 );
             }
