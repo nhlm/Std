@@ -51,8 +51,8 @@ class ConfigurableSetter
 
         if (!is_array($options))
             throw new \InvalidArgumentException(sprintf(
-                'Options must be array or Traversable; given: (%s).'
-                , \Poirot\Std\flatten($options)
+                'Options must be array or Traversable For Configuration Of (%s); given: (%s).'
+                , get_class($this), \Poirot\Std\flatten($options)
             ));
 
         if (empty($options))
