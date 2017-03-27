@@ -190,23 +190,27 @@ namespace Poirot\Std\Lexer
 {
     /**
      * Tokenize Parse String Definition Into Parts
-     * 
+     *
      * String in form of:
      *  '[:subdomain{static}.]localhost.:tld{\s+}'
      *  : variable {delimiter}
      *    delimiter .. localhost\.(?P<tld>\s+)
      *  [optional]
-     * 
-     * TODO: optional in optional; 
+     *
+     * TODO: optional in optional;
      * TODO: skip token \[token] add slash
-     * 
+     *
      * @param string $criteria
+     * @param string $expectedLiteral
      *
      * @return array
      */
-    function parseCriteria($criteria)
+    function parseCriteria($criteria, $expectedLiteral = null)
     {
-        $TOKENS = preg_quote('\\.:{\[\]');
+        $TOKENS  = preg_quote('\.:{[]');
+
+        ($expectedLiteral !== null) ?: $expectedLiteral = '/@+-';
+        $LITERAL = preg_quote($expectedLiteral).'A-Za-z0-9_';
 
         $currentPos = 0;
         $length     = strlen($criteria);
@@ -218,7 +222,7 @@ namespace Poirot\Std\Lexer
         while ($currentPos < $length)
         {
             ## the tokens are .:{[]
-            preg_match("(\G(?P<_literal_>[_/A-Za-z0-9]*)(?P<_token_>[$TOKENS]|$))"
+            preg_match("(\G(?P<_literal_>[$LITERAL]*)(?P<_token_>[$TOKENS]|$))"
                 , $criteria
                 , $matches
                 , 0
@@ -264,11 +268,16 @@ namespace Poirot\Std\Lexer
             }
 
             elseif ($Token === '[') {
-                $va = array();
-                $levelParts[$level][]   = array('_optional_' => &$va);
+                if (!isset($va)) {
+                    $va = array();
+                    $n = 0;
+                }
 
+                $n++;
+                $va[$n] = array();
+                $levelParts[$level][]   = array('_optional_' => &$va[$n]);
                 $level++;
-                $levelParts[$level] = &$va;
+                $levelParts[$level] = &$va[$n];
             }
 
             elseif ($Token === ']') {
@@ -359,6 +368,23 @@ namespace Poirot\Std\Lexer
         $args = func_get_args();
         if ($args && isset($args[2]))
             $isOptional = $args[2];
+
+        # Check For Presented Values in Optional Segment
+        // consider this "/[@:username{\w+}][-:userid{\w+}]"
+        // if username not presented as params injected then first part include @ as literal
+        // not rendered.
+        // optional part only render when all parameter is present
+        if ($isOptional) {
+            foreach ($parts as $parsed) {
+                if (!isset($parsed['_parameter_']))
+                    continue;
+
+                ## need parameter
+                $neededParameterName = $parsed['_parameter_'];
+                if (!(isset($params[$neededParameterName]) && $params[$neededParameterName] !== '') )
+                    return '';
+            }
+        }
 
         
         $return    = '';
