@@ -267,7 +267,7 @@ abstract class aDataOptions
                 'The Property "%s" is readonly.'
                 , $key
             ));
-        else throw new \Exception(sprintf(
+        else throw new Std\Struct\Exceptions\exSetterMismatch(sprintf(
             'The Property (%s) not having any Public Setter Method Match on (%s).'
             , $key, get_class($this)
         ));
