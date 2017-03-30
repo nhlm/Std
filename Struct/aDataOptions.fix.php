@@ -208,6 +208,8 @@ abstract class aDataOptions
 
     /**
      * Is Empty?
+     * @ignore
+     *
      * @return bool
      */
     function isEmpty()
