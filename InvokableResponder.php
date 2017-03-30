@@ -221,7 +221,7 @@ final class InvokableResponder
      */
     function _mergeResults($result, array $previousArray = array())
     {
-        if (!(is_array($result) || $result instanceof \Traversable))
+        if ( !is_array($result) )
             $result = array($this->_getIdentifier() => $result);
 
         $merge = \Poirot\Std\cast($previousArray);
