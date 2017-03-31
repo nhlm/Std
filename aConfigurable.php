@@ -3,6 +3,7 @@ namespace Poirot\Std;
 
 use Poirot\Std\Interfaces\Pact\ipConfigurable;
 
+
 abstract class aConfigurable
     implements ipConfigurable
 {
@@ -13,21 +14,21 @@ abstract class aConfigurable
      */
     function __construct($options = null)
     {
-        if (!empty($options) && $options !== null)
-            $this->with($options);
+        if ($options !== null)
+            $this->with(static::parseWith($options));
     }
 
     /**
      * Build Object With Provided Options
      *
-     * @param array|\Traversable $options        Associated Array
-     * @param bool               $throwException Throw Exception On Wrong Option
+     * @param array $options        Associated Array
+     * @param bool  $throwException Throw Exception On Wrong Option
      *
      * @return $this
      * @throws \Exception
      * @throws \InvalidArgumentException
      */
-    abstract function with($options, $throwException = false);
+    abstract function with(array $options, $throwException = false);
 
     /**
      * Load Build Options From Given Resource
@@ -53,10 +54,12 @@ abstract class aConfigurable
                 'Invalid Configuration Resource provided; given: (%s).'
                 , \Poirot\Std\flatten($optionsResource)
             ));
-        
+
+
         // ..
         
-        // TODO just return array
+       if ($optionsResource instanceof \Traversable)
+           $optionsResource = cast($optionsResource)->toArray();
         
         return $optionsResource;
     }

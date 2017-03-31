@@ -16,26 +16,15 @@ trait tConfigurableSetter
     /**
      * Build Object With Provided Options
      *
-     * @param array|\Traversable $options        Associated Array
-     * @param bool               $throwException Throw Exception On Wrong Option
+     * @param array $options        Associated Array
+     * @param bool  $throwException Throw Exception On Wrong Option
      *
      * @return array Remained Options (if not throw exception)
      * @throws \Exception
      * @throws \InvalidArgumentException
      */
-    function with($options, $throwException = false)
+    function with(array $options, $throwException = false)
     {
-        // TODO just get array as argument; others must convert from parseWith Implementation
-
-        if ($options instanceof \Traversable)
-            $options = \Poirot\Std\cast($options)->toArray();
-
-        if (!is_array($options))
-            throw new \InvalidArgumentException(sprintf(
-                'Options must be array or Traversable For Configuration Of (%s); given: (%s).'
-                , get_class($this), \Poirot\Std\flatten($options)
-            ));
-
         if (empty($options))
             # nothing to do
             return $this;
