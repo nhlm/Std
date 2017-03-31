@@ -265,7 +265,7 @@ abstract class aDataOptions
         if ($setter = $this->_getSetterIfHas($key))
             $this->$setter($value);
         elseif ($this->__isset($key))
-            throw new \Exception(sprintf(
+            throw new Std\Struct\Exceptions\exSetterMismatch(sprintf(
                 'The Property "%s" is readonly.'
                 , $key
             ));
