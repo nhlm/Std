@@ -177,13 +177,11 @@ final class StdArray extends \SplType
     {
         $arr = array();
         foreach($this->value as $key => $val) {
-            $flag = false;
-            if ($filter !== null)
+            if ($filter !== null) {
                 $flag = $filter($val, $key);
-
-            if ($flag) continue;
-
-            if ($recursive && is_array($val)) {
+                if ($flag) continue;
+            }
+            else if ($recursive && is_array($val)) {
                 ## recursively walk
                 $stdarr = new StdArray($val);
                 $val    = $stdarr->withWalk($filter);
