@@ -192,13 +192,12 @@ namespace Poirot\Std\Lexer
      * Tokenize Parse String Definition Into Parts
      *
      * String in form of:
-     *  '[:subdomain{static}.]localhost.:tld{\s+}'
+     *  '[:subdomain{{static}}.]localhost.:tld{{\s+}}'
      *  : variable {delimiter}
      *    delimiter .. localhost\.(?P<tld>\s+)
      *  [optional]
      *
      * TODO: optional in optional;
-     * TODO: skip token \[token] add slash
      *
      * @param string $criteria
      * @param string $expectedLiteral
@@ -207,7 +206,7 @@ namespace Poirot\Std\Lexer
      */
     function parseCriteria($criteria, $expectedLiteral = null)
     {
-        $TOKENS  = preg_quote('\.:{[]');
+        $TOKENS  = preg_quote('\:{[]');
 
         ($expectedLiteral !== null) ?: $expectedLiteral = '/@+-';
         $LITERAL = preg_quote($expectedLiteral).'A-Za-z0-9_';
@@ -242,7 +241,7 @@ namespace Poirot\Std\Lexer
 
             $Token = $matches['_token_'];
             if ($Token === ':') {
-                $pmatch = preg_match("(\G(?P<_name_>[^$TOKENS]+)(?:{(?P<_delimiter_>[^.}]+)})?:?)"
+                $pmatch = preg_match("(\G(?P<_name_>[^$TOKENS]+)(?:{{(?P<_delimiter_>[^.]+)}})?:?)"
                     , $criteria
                     , $matches
                     , 0
@@ -326,7 +325,7 @@ namespace Poirot\Std\Lexer
                     $groupName = '?P<' . $definition_value . '>';
 
                     if (isset($parsed[$definition_value])) {
-                        // Delimiter: localhost:port{\d+}
+                        // Delimiter: localhost:port{{\d+}}
                         $regex .= '(' . $groupName . $parsed[$definition_value] . ')';
                     } else{
                         $regex .= '(' . $groupName . '[^.]+)';
@@ -370,7 +369,7 @@ namespace Poirot\Std\Lexer
             $isOptional = $args[2];
 
         # Check For Presented Values in Optional Segment
-        // consider this "/[@:username{\w+}][-:userid{\w+}]"
+        // consider this "/[@:username{{\w+}}][-:userid{{\w+}}]"
         // if username not presented as params injected then first part include @ as literal
         // not rendered.
         // optional part only render when all parameter is present
