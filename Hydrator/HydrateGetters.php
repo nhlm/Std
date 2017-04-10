@@ -12,11 +12,15 @@ class HydrateGetters
     protected $givenObject;
 
     protected $ignoredMethods = array();
+    protected $excludeNullValues = true;
+
     protected $_c_ignored_docblock;
     protected $_c_reflection;
 
 
     /**
+     * // TODO ignore null values
+     *
      * HydrateGetters constructor.
      *
      * @param object   $object
@@ -67,6 +71,28 @@ class HydrateGetters
         return $this->ignoredMethods + $this->_getIgnoredByDocBlock();
     }
 
+    /**
+     * Exclude Null Values From Hydration
+     *
+     * @param bool $flag
+     *
+     * @return $this
+     */
+    function setExcludeNullValues($flag = true)
+    {
+        $this->excludeNullValues = (bool) $flag;
+        return $this;
+    }
+
+    /**
+     * Is Null Values Excluded
+     *
+     * @return boolean
+     */
+    function isExcludeNullValues()
+    {
+        return $this->excludeNullValues;
+    }
 
     // Implement IteratorAggregate
 
@@ -120,9 +146,13 @@ class HydrateGetters
 
             if ($args !== null) {
                 $value = $method->invokeArgs($this->givenObject, $args);
+
+                if ($this->isExcludeNullValues() && $value === null )
+                    // Null Value not included in list
+                    continue;
+
                 $properties[$propertyName] = $value;
             }
-
         }
 
         return $properties;
