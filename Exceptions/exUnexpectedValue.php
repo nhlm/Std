@@ -5,7 +5,10 @@ namespace Poirot\Std\Exceptions;
 class exUnexpectedValue
     extends \UnexpectedValueException
 {
+    const ERCODE_REQUIRED = 10;
+
     protected $parameter;
+
 
     /**
      * exUnexpectedValue constructor.
@@ -22,6 +25,7 @@ class exUnexpectedValue
         $this->parameter = $parameter;
     }
 
+
     /**
      * Get Parameter Name
      *
@@ -30,5 +34,13 @@ class exUnexpectedValue
     function getParameterName()
     {
         return $this->parameter;
+    }
+
+
+    // ...
+
+    static function paramIsRequired($parameterName)
+    {
+        return new static('Parameter %s Is Required.', $parameterName, static::ERCODE_REQUIRED);
     }
 }
