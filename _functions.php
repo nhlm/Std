@@ -456,14 +456,16 @@ namespace Poirot\Std
     function cast($type)
     {
         switch(1) {
-            case isStringify($type):
-                $return = new StdString($type);
-                break;
             case is_array($type):
                 $return = new StdArray($type);
                 break;
             case ($type instanceof \Traversable):
                 $return = new StdTravers($type);
+                break;
+            case isStringify($type):
+                // Stringify has low priority than \Traversable
+                // TODO and object may has both \Traversable or Stringify ...
+                $return = new StdString($type);
                 break;
 
             default: throw new \UnexpectedValueException(sprintf(
