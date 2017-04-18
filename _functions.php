@@ -241,7 +241,10 @@ namespace Poirot\Std\Lexer
 
             $Token = $matches['_token_'];
             if ($Token === ':') {
-                $pmatch = preg_match("(\G(?P<_name_>[^$TOKENS]+)(?:{{(?P<_delimiter_>[^.\[\]]+)}})?:?)"
+                // TODO better expression
+                // currently match everything between {{ \w+}}/:identifier_type{{\w+ }}
+                // /validate/resend/:validation_code{{\w+}}/:identifier_type{{\w+}}
+                $pmatch = preg_match("(\G(?P<_name_>[^$TOKENS]+)(?:{{(?P<_delimiter_>[^.\[\]/]+)}})?:?)"
                     , $criteria
                     , $matches
                     , 0
