@@ -1,7 +1,7 @@
 <?php
 namespace Poirot\Std\Hydrator;
 
-use Poirot\Http\HttpMessage\Request\Plugin\ParseRequestData;
+use Poirot\Http\HttpMessage\Request\Plugin;
 use Poirot\Http\Interfaces\iHttpRequest;
 use Poirot\Std\ConfigurableSetter;
 
@@ -57,7 +57,7 @@ class aHydrateEntity
 
         if ($optionsResource instanceof iHttpRequest)
             # Parse and assert Http Request
-            $optionsResource = ParseRequestData::_($optionsResource)->parseBody();
+            $optionsResource = Plugin\ParseRequestData::_($optionsResource)->parseBody();
 
         return parent::parseWith($optionsResource);
     }
