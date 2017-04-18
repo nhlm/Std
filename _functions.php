@@ -510,6 +510,28 @@ namespace Poirot\Std
     }
 
     /**
+     * Generate a unique identifier
+     *
+     * @param int $length
+     *
+     * @return string
+     * @throws \Exception
+     */
+    function generateUniqueIdentifier($length = 40)
+    {
+        try {
+            return bin2hex(random_bytes($length));
+        } catch (\TypeError $e) {
+            throw new \Exception('Server Error While Creating Unique Identifier.');
+        } catch (\Error $e) {
+            throw new \Exception('Server Error While Creating Unique Identifier.');
+        } catch (\Exception $e) {
+            // If you get this message, the CSPRNG failed hard.
+            throw new \Exception('Server Error While Creating Unique Identifier.');
+        }
+    }
+
+    /**
      * With null|false Data Return Default Value
      * Elsewhere Return Data
      *
