@@ -1,10 +1,12 @@
 <?php
 namespace Poirot\Std\Struct;
 
+use Poirot\Std\ConfigurableSetter;
 use Poirot\Std\Hydrator\HydrateGetters;
 use Poirot\Std\Interfaces\Struct\iValueObject;
 
 abstract class aValueObject
+    extends ConfigurableSetter
     implements iValueObject
 {
 
@@ -25,7 +27,10 @@ abstract class aValueObject
      * @throws \Exception
      * @throws \InvalidArgumentException
      */
-    abstract function with(array $options, $throwException = true);
+    function with(array $options, $throwException = false)
+    {
+        parent::with($options, $throwException);
+    }
 
 
     /**
