@@ -523,7 +523,9 @@ namespace Poirot\Std
     function generateUniqueIdentifier($length = 40)
     {
         try {
-            return bin2hex(random_bytes($length));
+            // Converting bytes to hex will always double length. Hence, we can reduce
+            // the amount of bytes by half to produce the correct length.
+            return bin2hex(random_bytes($length / 2));
         } catch (\TypeError $e) {
             throw new \Exception('Server Error While Creating Unique Identifier.');
         } catch (\Error $e) {
