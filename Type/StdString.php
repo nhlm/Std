@@ -17,7 +17,15 @@ final class StdString
     function isUTF8()
     {
         $string = (string) $this;
-        return (strlen($string) != strlen(utf8_decode($string)));
+        if (function_exists('utf8_decode'))
+             $decodedStr = strlen(utf8_decode($string));
+        elseif (function_exists('mb_convert_encoding'))
+            $decodedStr = strlen(utf8_decode($string));
+        else
+            $decodedStr = $string;
+
+        
+        return strlen($string) != strlen($decodedStr);
     }
 
     /**
