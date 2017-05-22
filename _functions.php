@@ -29,22 +29,22 @@ namespace Poirot\Std\Invokable
      *
      * @param callable           $callable
      * @param array|\Traversable $parameters Params to match with function arguments
-     * 
+     *
      * @return \Closure
      */
     function resolveCallableWithArgs(/*callable*/$callable, $parameters)
     {
         if ($parameters instanceof \Traversable)
             $parameters = \Poirot\Std\cast($parameters)->toArray();
-        
-        
+
+
         $reflection       = reflectCallable($callable);
         $matchedArguments = resolveArgsForReflection($reflection, $parameters);
-        
+
         $callbackResolved = function() use ($callable, $matchedArguments) {
             return call_user_func_array($callable, $matchedArguments);
         };
-        
+
         return $callbackResolved;
     }
 
@@ -101,28 +101,28 @@ namespace Poirot\Std\Invokable
                 foreach ($arguments as $k => $v) {
                     if ( ( $class = $reflectArgument->getClass() ) && is_object($v) && $class->isInstance($v) )
                         $av = $v;
-                    
+
                     if ( $reflectArgument->isArray() && is_array($v) )
                         $av = $v;
-                    
+
                     if ( $reflectArgument->isCallable() && is_callable($v) )
                         $av = $v;
-                    
+
                     if ($av !== null) {
                         unset($arguments[$k]);
                         break;
                     }
                 }
-                
-                ($av === null) ?: $argValue = $av; 
+
+                ($av === null) ?: $argValue = $av;
             }
 
             if ($argValue === $notSet)
                 throw new \InvalidArgumentException(sprintf(
                     'Callable (%s) has no match found on parameter (%s) from (%s) list.'
                     , ($reflectFunc instanceof \ReflectionMethod)
-                        ? $reflectFunc->getDeclaringClass()->getName().'::'.$reflectFunc->getName()
-                        : $reflectFunc->getName()
+                    ? $reflectFunc->getDeclaringClass()->getName().'::'.$reflectFunc->getName()
+                    : $reflectFunc->getName()
                     , $reflectArgument->getName()
                     , \Poirot\Std\flatten($parameters)
                 ));
@@ -132,7 +132,7 @@ namespace Poirot\Std\Invokable
 
         return $matchedArguments;
     }
-    
+
     /**
      * Factory Reflection From Given Callable
      *
@@ -240,10 +240,27 @@ namespace Poirot\Std\Lexer
                 continue;
 
             $Token = $matches['_token_'];
-            if ($Token === ':') {
+            if ($Token === '{') {
+                // ^ match any character that is not in list
+                $pmatch = preg_match("{{(?P<_delimiter_>[^\[\]/{}]+)}}"
+                    , $criteria
+                    , $matches
+                    , 0
+                    , $currentPos
+                );
+                if (! $pmatch )
+                    throw new \RuntimeException('Miss usage of {{ }} token.');
+
+                $val['_regex_'] = $matches['_delimiter_'];
+                $levelParts[$level][] = $val;
+
+                $currentPos += strlen($matches[0])+2/*{}*/;
+            }
+            elseif ($Token === ':') {
                 // TODO better expression
                 // currently match everything between {{ \w+}}/:identifier_type{{\w+ }}
                 // /validate/resend/:validation_code{{\w+}}/:identifier_type{{\w+}}
+                // ^ match any character that is not in list
                 $pmatch = preg_match("(\G(?P<_name_>[^$TOKENS]+)(?:{{(?P<_delimiter_>[^.\[\]/]+)}})?:?)"
                     , $criteria
                     , $matches
@@ -319,6 +336,9 @@ namespace Poirot\Std\Lexer
             // _parameter_ String(3) => tld \
             // tld String(4)         => .com
             switch ($definition_name) {
+                case '_regex_':
+                    $regex .= $definition_value;
+                    break;
                 case '_token_':
                 case '_literal_':
                     $regex .= preg_quote($definition_value);
@@ -357,14 +377,14 @@ namespace Poirot\Std\Lexer
     {
         if ($params instanceof \Traversable)
             $params = \Poirot\Std\cast($params)->toArray();
-        
+
         if (!is_array($params))
             throw new \InvalidArgumentException(sprintf(
                 'Parameters must be an array or Traversable; given: (%s).'
                 , \Poirot\Std\flatten($params)
             ));
-        
-        
+
+
         // regard to recursive function call
         $isOptional = false;
         $args = func_get_args();
@@ -388,7 +408,7 @@ namespace Poirot\Std\Lexer
             }
         }
 
-        
+
         $return    = '';
         // [0 => ['_literal_' => 'localhost'], 1=>['_optional' => ..] ..]
         foreach ($parts as $parsed) {
@@ -450,7 +470,7 @@ namespace Poirot\Std
      *
      * ! when you want to force cast to string is necessary to
      *   use type casting cast((string) 10)
-     *  
+     *
      * @param mixed $type
      *
      * @throws \UnexpectedValueException
@@ -573,9 +593,9 @@ namespace Poirot\Std
     function isStringify($var)
     {
         return ( (!is_array($var)) && (
-            (!is_object($var) && @settype($var, 'string') !== false) ||
-            (is_object($var)  && method_exists($var, '__toString' ))
-        ));
+                (!is_object($var) && @settype($var, 'string') !== false) ||
+                (is_object($var)  && method_exists($var, '__toString' ))
+            ));
     }
 
     /**
