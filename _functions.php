@@ -206,9 +206,9 @@ namespace Poirot\Std\Lexer
      */
     function parseCriteria($criteria, $expectedLiteral = null)
     {
-        $TOKENS  = preg_quote('\:{[]');
+        $TOKENS  = preg_quote('\:~<>');
 
-        ($expectedLiteral !== null) ?: $expectedLiteral = '/@+-';
+        ($expectedLiteral !== null) ?: $expectedLiteral = '/@+-.';
         $LITERAL = preg_quote($expectedLiteral).'A-Za-z0-9_';
 
         $currentPos = 0;
@@ -220,7 +220,7 @@ namespace Poirot\Std\Lexer
 
         while ($currentPos < $length)
         {
-            ## the tokens are .:{[]
+            ## the tokens are .:~<>
             preg_match("(\G(?P<_literal_>[$LITERAL]*)(?P<_token_>[$TOKENS]|$))"
                 , $criteria
                 , $matches
@@ -240,16 +240,16 @@ namespace Poirot\Std\Lexer
                 continue;
 
             $Token = $matches['_token_'];
-            if ($Token === '{') {
+            if ($Token === '~') {
                 // ^ match any character that is not in list
-                $pmatch = preg_match("{{(?P<_delimiter_>[^\[\]/{}]+)}}"
+                $pmatch = preg_match("/~(?P<_delimiter_>[^~]+)~/"
                     , $criteria
                     , $matches
                     , 0
-                    , $currentPos
+                    , 0
                 );
                 if (! $pmatch )
-                    throw new \RuntimeException('Miss usage of {{ }} token.');
+                    throw new \RuntimeException('Miss usage of ~ ~ token.');
 
                 $val['_regex_'] = $matches['_delimiter_'];
                 $levelParts[$level][] = $val;
@@ -261,14 +261,18 @@ namespace Poirot\Std\Lexer
                 // currently match everything between {{ \w+}}/:identifier_type{{\w+ }}
                 // /validate/resend/:validation_code{{\w+}}/:identifier_type{{\w+}}
                 // ^ match any character that is not in list
-                $pmatch = preg_match("(\G(?P<_name_>[^$TOKENS]+)(?:{{(?P<_delimiter_>[^.\[\]/]+)}})?:?)"
+                $pmatch = preg_match("(\G(?P<_name_>[^$TOKENS]+)(?:~(?P<_delimiter_>[^~]+)~)?:?)"
                     , $criteria
                     , $matches
                     , 0
                     , $currentPos
                 );
-                if (!$pmatch)
-                    throw new \RuntimeException('Found empty parameter name');
+
+                if (! $pmatch && !(isset($matches['_name_']) && isset($matches['_delimiter_'])) )
+                    throw new \RuntimeException(
+                        'Found empty parameter name or delimiter on (%s).'
+                        , $criteria
+                    );
 
                 $parameter = $matches['_name_'];
                 $val       = array('_parameter_' => $parameter);
@@ -286,7 +290,7 @@ namespace Poirot\Std\Lexer
                 $levelParts[$level][]   = array('_literal_' => $criteria[$nextChar]);
             }
 
-            elseif ($Token === '[') {
+            elseif ($Token === '<') {
                 if (!isset($va)) {
                     $va = array();
                     $n = 0;
@@ -299,7 +303,7 @@ namespace Poirot\Std\Lexer
                 $levelParts[$level] = &$va[$n];
             }
 
-            elseif ($Token === ']') {
+            elseif ($Token === '>') {
                 unset($levelParts[$level]);
                 $level--;
 
@@ -321,10 +325,11 @@ namespace Poirot\Std\Lexer
      * Build the matching regex from parsed parts.
      *
      * @param array $parts
+     * @param bool $matchExact
      *
      * @return string
      */
-    function buildRegexFromParsed(array $parts)
+    function buildRegexFromParsed(array $parts, $matchExact = null)
     {
         $regex = '';
 
@@ -357,9 +362,17 @@ namespace Poirot\Std\Lexer
                     break;
 
                 case '_optional_':
-                    $regex .= '(?:' . buildRegexFromParsed($definition_value) . ')?';
+                    $regex .= '(?:' . buildRegexFromParsed($definition_value, null) . ')?';
                     break;
             }
+        }
+
+        if ($matchExact !== null) {
+            $regex = ( (bool) $matchExact )
+                ? "(^{$regex}$)" ## exact match
+                // TODO /me match on /members request with matchWhole Option false
+                //      so i add trailing slash but not tested completely
+                : "(^{$regex})"; ## only start with criteria "/pages[/other/paths]"
         }
 
         return $regex;
