@@ -569,6 +569,19 @@ namespace Poirot\Std
         }
     }
 
+    function makeReadableFileSize($size, $precision = 2)
+    {
+        static $units = array('B','KB','MB','GB','TB','PB','EB','ZB','YB');
+        $step = 1024;
+        $i = 0;
+        while (($size / $step) > 0.9) {
+            $size = $size / $step;
+            $i++;
+        }
+
+        return round($size, $precision).' '.$units[$i];
+    }
+
     /**
      * With null|false Data Return Default Value
      * Elsewhere Return Data
