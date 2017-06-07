@@ -237,7 +237,7 @@ final class StdArray extends \SplType
      * @param  array|StdArray $b
      * @return StdArray
      */
-    function withMergeRecursive($b)
+    function withMergeRecursive($b, $reserve = false)
     {
         if ($b instanceof StdArray)
             $b = $b->value;
@@ -247,24 +247,38 @@ final class StdArray extends \SplType
         $a = $this->value;
 
         foreach ($b as $key => $value)
-            if (array_key_exists($key, $a)) {
-                if (is_int($key)) {
-                    if (!in_array($value, $a))
-                        $a[] = $value;
-                }
-                elseif (is_array($value) && is_array($a[$key]))  {
-                    $m = new StdArray($a[$key]);
-                    $a[$key] = $m->withMerge($value)->value;
-                }
-                else {
+        {
+            if (! array_key_exists($key, $a)) {
+                // key not exists so simply add it to array
+                $a[$key] = $value;
+                continue;
+            }
+
+
+            if ( is_int($key) ) {
+                // [ 'value' ] if value not exists append to array!
+                if (! in_array($value, $a) )
+                    $a[] = $value;
+
+            } elseif (is_array($value) && is_array($a[$key]))  {
+                // a= [k=>[]] , b=[k=>['value']]
+                $m = new StdArray($a[$key]);
+                $a[$key] = $m->withMergeRecursive($value, $reserve)->value;
+
+            } else {
+                if ($reserve) {
+                    // save old value and push them into new array list
                     $cv = $a[$key];
                     $a[$key] = array();
                     $pa = &$a[$key];
                     array_push($pa, $cv);
                     array_push($pa, $value);
+                } else {
+                    // simply replace value
+                    $a[$key] = $value;
                 }
-            } else
-                $a[$key] = $value;
+            }
+        }
 
         return new StdArray($a);
     }
